@@ -15,22 +15,22 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 265,
-                    "column": 69
+                    "lineNumber": 266,
+                    "column": 1
                 },
                 "position": {
-                    "lineNumber": 265,
-                    "column": 69
+                    "lineNumber": 266,
+                    "column": 1
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 263,
+                "lineNumber": 264,
                 "column": 1
             },
-            "firstPositionDeltaTop": 111
+            "firstPositionDeltaTop": 257
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -109,7 +109,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "5a6ff83a-5f8f-459b-c4cb-83162651deed"
+                        "7de41a29-89bc-4363-eddf-47c6f92adff5"
                     ]
                 },
                 "currentHeight": 36,
@@ -128,8 +128,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "5a6ff83a-5f8f-459b-c4cb-83162651deed",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "7de41a29-89bc-4363-eddf-47c6f92adff5",
                     "rows": [
                         {
                             "0": "arbaz"
@@ -183,7 +183,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 10 records retrieved in 2.545ms"
+                        "text": "OK, 10 records retrieved in 1.807ms"
                     },
                     "totalRowCount": 10,
                     "hasMoreRows": false,
@@ -205,8 +205,8 @@
                         {
                             "type": 2,
                             "index": 0,
-                            "resultId": "129f4761-9934-4878-b257-381ccfe88493",
-                            "content": "OK, 0 records retrieved in 1.269ms"
+                            "resultId": "f4468ee4-5601-4d43-d927-87f28609e91d",
+                            "content": "OK, 0 records retrieved in 2.406ms"
                         }
                     ]
                 },
@@ -266,7 +266,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "0b969e0c-e634-41e4-9324-d68f944c4d17"
+                        "8e781b6e-5b40-4421-9f6b-41348f6b3d61"
                     ]
                 },
                 "currentHeight": 36,
@@ -285,8 +285,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "0b969e0c-e634-41e4-9324-d68f944c4d17",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "8e781b6e-5b40-4421-9f6b-41348f6b3d61",
                     "rows": [
                         {
                             "0": "users"
@@ -313,7 +313,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 1 record retrieved in 3.709ms"
+                        "text": "OK, 1 record retrieved in 3.79ms"
                     },
                     "totalRowCount": 1,
                     "hasMoreRows": false,
@@ -332,7 +332,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "bdab2fb5-45b8-428d-ebd6-db3efd3004e1"
+                        "42d4c58a-da77-477f-a40f-7d29fcf90b74"
                     ]
                 },
                 "currentHeight": 36,
@@ -351,8 +351,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "bdab2fb5-45b8-428d-ebd6-db3efd3004e1",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "42d4c58a-da77-477f-a40f-7d29fcf90b74",
                     "rows": [
                         {
                             "0": "id",
@@ -651,7 +651,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 24 records retrieved in 17.65ms"
+                        "text": "OK, 24 records retrieved in 17.463ms"
                     },
                     "totalRowCount": 24,
                     "hasMoreRows": false,
@@ -671,30 +671,15 @@
                     "type": "text",
                     "text": [
                         {
-                            "type": 2,
+                            "type": 0,
                             "index": 0,
-                            "resultId": "91c39d76-283f-4752-8c99-b6574f7b26ba",
-                            "content": "OK, 50 rows affected in 40.924ms"
-                        },
-                        {
-                            "type": 2,
-                            "index": 1,
-                            "resultId": "4ead47a8-5da4-4fca-91ad-14e52134db95",
-                            "content": "OK, 50 rows affected in 16.382ms"
-                        },
-                        {
-                            "type": 2,
-                            "index": 2,
-                            "resultId": "b08fd39d-6f59-45d2-87f1-cd94948845af",
-                            "content": "OK, 50 rows affected in 14.416ms"
-                        },
-                        {
-                            "type": 2,
-                            "index": 3,
-                            "resultId": "389f3dde-b8bd-4a3c-fef7-5c39ae945bf0",
-                            "content": "OK, 50 rows affected in 16.389ms"
+                            "content": "MySQL Error (1062): Duplicate entry '814e3f2e-b60c-4a47-8281-1ca0ec1e3409' for key 'users.PRIMARY'",
+                            "language": "ansi"
                         }
-                    ]
+                    ],
+                    "executionInfo": {
+                        "text": ""
+                    }
                 },
                 "currentHeight": 28,
                 "currentSet": 1,
@@ -756,7 +741,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "d2d33d5f-2766-43c0-9737-01019a569d85"
+                        "7fa43e7c-36ca-4ad4-86f9-ac540491517f"
                     ]
                 },
                 "currentHeight": 36,
@@ -775,35 +760,9 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "d2d33d5f-2766-43c0-9737-01019a569d85",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "7fa43e7c-36ca-4ad4-86f9-ac540491517f",
                     "rows": [
-                        {
-                            "0": "00d90783-e771-400c-ae43-98f7c1131926",
-                            "1": "manish.ahmed95@outlook.com",
-                            "2": "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
-                            "3": "Manish",
-                            "4": "Ahmed",
-                            "5": null,
-                            "6": "customer",
-                            "7": "active",
-                            "8": 1,
-                            "9": 0,
-                            "10": null,
-                            "11": null,
-                            "12": null,
-                            "13": 0,
-                            "14": "2026-04-21 05:38:27",
-                            "15": null,
-                            "16": "1979-03-04",
-                            "17": "en",
-                            "18": "INR",
-                            "19": 340,
-                            "20": 0,
-                            "21": "2025-05-30 18:44:51",
-                            "22": "2025-05-30 18:44:51",
-                            "23": null
-                        },
                         {
                             "0": "012efa9c-1747-4c53-91a1-297600c58a58",
                             "1": "yusuf.sharma80@example.com",
@@ -1297,6 +1256,32 @@
                             "21": "2026-04-29 04:02:35",
                             "22": "2026-04-29 04:02:35",
                             "23": null
+                        },
+                        {
+                            "0": "1f40e1d8-7be2-4ea9-8075-86f761559587",
+                            "1": "hina.khan79@gmail.com",
+                            "2": "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
+                            "3": "Hina",
+                            "4": "Khan",
+                            "5": "+919000370796",
+                            "6": "customer",
+                            "7": "active",
+                            "8": 1,
+                            "9": 0,
+                            "10": null,
+                            "11": null,
+                            "12": null,
+                            "13": 0,
+                            "14": "2026-05-04 15:20:53",
+                            "15": "https://cdn.shopapp.com/avatars/1f40e1d8-7be2-4ea9-8075-86f761559587.png",
+                            "16": "1998-11-26",
+                            "17": "hi",
+                            "18": "INR",
+                            "19": 0,
+                            "20": 1,
+                            "21": "2025-01-13 02:16:25",
+                            "22": "2025-01-13 02:16:25",
+                            "23": null
                         }
                     ],
                     "columns": [
@@ -1718,7 +1703,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 20 records retrieved in 3.787ms"
+                        "text": "OK, 20 records retrieved in 5.24ms"
                     },
                     "totalRowCount": 20,
                     "hasMoreRows": false,
@@ -1738,7 +1723,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "a720bf22-44a5-42fc-f6b8-51902f704dac"
+                        "221bf346-8e85-49a7-ef3a-e5bc61a13b91"
                     ]
                 },
                 "currentHeight": 36,
@@ -1757,8 +1742,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "a720bf22-44a5-42fc-f6b8-51902f704dac",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "221bf346-8e85-49a7-ef3a-e5bc61a13b91",
                     "rows": [
                         {
                             "0": "10520e89-d5fe-4da3-af96-365c19195be2",
@@ -2206,7 +2191,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 1 record retrieved in 1.4ms"
+                        "text": "OK, 1 record retrieved in 1.536ms"
                     },
                     "totalRowCount": 1,
                     "hasMoreRows": false,
@@ -2226,7 +2211,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "495fae50-440b-4a39-b4e6-273061a0d893"
+                        "d9082627-6289-441c-cf80-eb654a939e4c"
                     ]
                 },
                 "currentHeight": 36,
@@ -2245,8 +2230,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "495fae50-440b-4a39-b4e6-273061a0d893",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "d9082627-6289-441c-cf80-eb654a939e4c",
                     "rows": [
                         {
                             "0": "2db1dae6-6526-44a9-ab8b-d873a7f90959",
@@ -2746,7 +2731,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 3 records retrieved in 2.793ms"
+                        "text": "OK, 3 records retrieved in 5.574ms"
                     },
                     "totalRowCount": 3,
                     "hasMoreRows": false,
@@ -2766,7 +2751,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "d1725767-b385-4e0c-dcfb-36b9efb98046"
+                        "10f74125-6f68-4c99-db87-39850009ccf4"
                     ]
                 },
                 "currentHeight": 36,
@@ -2785,8 +2770,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "d1725767-b385-4e0c-dcfb-36b9efb98046",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "10f74125-6f68-4c99-db87-39850009ccf4",
                     "rows": [
                         {
                             "0": "2b9e4bb3-87f3-49da-8114-65789641304c",
@@ -3488,7 +3473,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "a6e9935a-183f-4244-fed1-2b17892f2628"
+                        "4b110ff2-cda2-4572-d1ae-9ab49455c0dc"
                     ]
                 },
                 "currentHeight": 330.1875,
@@ -3507,8 +3492,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "a6e9935a-183f-4244-fed1-2b17892f2628",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "4b110ff2-cda2-4572-d1ae-9ab49455c0dc",
                     "rows": [
                         {
                             "0": "012efa9c-1747-4c53-91a1-297600c58a58",
@@ -4210,7 +4195,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "9f00ff60-6690-4a67-84ab-b50b453bd94c"
+                        "96aedc80-1866-4fee-b8a8-2cb5b2d52647"
                     ]
                 },
                 "currentHeight": 36,
@@ -4229,8 +4214,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "9f00ff60-6690-4a67-84ab-b50b453bd94c",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "96aedc80-1866-4fee-b8a8-2cb5b2d52647",
                     "rows": [
                         {
                             "0": "012efa9c-1747-4c53-91a1-297600c58a58",
@@ -4678,7 +4663,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 1 record retrieved in 1.116ms"
+                        "text": "OK, 1 record retrieved in 1.614ms"
                     },
                     "totalRowCount": 1,
                     "hasMoreRows": false,
@@ -4698,7 +4683,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "1bda708d-23be-4fc8-b8ac-f0850cd3a3ec"
+                        "d92d8809-50f6-4516-ecee-9acae29223b3"
                     ]
                 },
                 "currentHeight": 206.1875,
@@ -4717,8 +4702,8 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "1bda708d-23be-4fc8-b8ac-f0850cd3a3ec",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "d92d8809-50f6-4516-ecee-9acae29223b3",
                     "rows": [
                         {
                             "0": "012efa9c-1747-4c53-91a1-297600c58a58",
@@ -5290,7 +5275,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "2a6a866b-3aa1-4f94-c70f-037f23ddc477"
+                        "b3664e3f-4d9c-4a5e-8eae-0ecf597a3b07"
                     ]
                 },
                 "currentHeight": 330.1875,
@@ -5309,35 +5294,9 @@
             },
             "data": [
                 {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "2a6a866b-3aa1-4f94-c70f-037f23ddc477",
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "b3664e3f-4d9c-4a5e-8eae-0ecf597a3b07",
                     "rows": [
-                        {
-                            "0": "00d90783-e771-400c-ae43-98f7c1131926",
-                            "1": "manish.ahmed95@outlook.com",
-                            "2": "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
-                            "3": "Manish",
-                            "4": "Ahmed",
-                            "5": null,
-                            "6": "customer",
-                            "7": "active",
-                            "8": 1,
-                            "9": 0,
-                            "10": null,
-                            "11": null,
-                            "12": null,
-                            "13": 0,
-                            "14": "2026-04-21 05:38:27",
-                            "15": null,
-                            "16": "1979-03-04",
-                            "17": "en",
-                            "18": "INR",
-                            "19": 340,
-                            "20": 0,
-                            "21": "2025-05-30 18:44:51",
-                            "22": "2025-05-30 18:44:51",
-                            "23": null
-                        },
                         {
                             "0": "04c84098-afe4-41e2-a97c-e2de48816bd7",
                             "1": "priya.rodriguez144@outlook.com",
@@ -5571,508 +5530,14 @@
                             "21": "2025-07-22 21:55:08",
                             "22": "2025-07-22 21:55:08",
                             "23": null
-                        }
-                    ],
-                    "columns": [
-                        {
-                            "title": "id",
-                            "field": "0",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": true,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "uuid()"
                         },
                         {
-                            "title": "email",
-                            "field": "1",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false
-                        },
-                        {
-                            "title": "password_hash",
-                            "field": "2",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false
-                        },
-                        {
-                            "title": "first_name",
-                            "field": "3",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false
-                        },
-                        {
-                            "title": "last_name",
-                            "field": "4",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false
-                        },
-                        {
-                            "title": "phone_number",
-                            "field": "5",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        },
-                        {
-                            "title": "role",
-                            "field": "6",
-                            "dataType": {
-                                "type": 43,
-                                "needsQuotes": true
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "customer"
-                        },
-                        {
-                            "title": "status",
-                            "field": "7",
-                            "dataType": {
-                                "type": 43,
-                                "needsQuotes": true
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "active"
-                        },
-                        {
-                            "title": "is_email_verified",
-                            "field": "8",
-                            "dataType": {
-                                "type": 42,
-                                "flags": [
-                                    "SIGNED",
-                                    "ZEROFILL"
-                                ],
-                                "numericPrecision": 10,
-                                "parameterFormatType": "OneOrZero",
-                                "synonyms": [
-                                    "INTEGER",
-                                    "INT4"
-                                ]
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "0"
-                        },
-                        {
-                            "title": "is_phone_verified",
-                            "field": "9",
-                            "dataType": {
-                                "type": 42,
-                                "flags": [
-                                    "SIGNED",
-                                    "ZEROFILL"
-                                ],
-                                "numericPrecision": 10,
-                                "parameterFormatType": "OneOrZero",
-                                "synonyms": [
-                                    "INTEGER",
-                                    "INT4"
-                                ]
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "0"
-                        },
-                        {
-                            "title": "email_verification_token",
-                            "field": "10",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        },
-                        {
-                            "title": "password_reset_token",
-                            "field": "11",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        },
-                        {
-                            "title": "password_reset_expires",
-                            "field": "12",
-                            "dataType": {
-                                "type": 26,
-                                "dateTimePrecision": 8,
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        },
-                        {
-                            "title": "two_factor_enabled",
-                            "field": "13",
-                            "dataType": {
-                                "type": 42,
-                                "flags": [
-                                    "SIGNED",
-                                    "ZEROFILL"
-                                ],
-                                "numericPrecision": 10,
-                                "parameterFormatType": "OneOrZero",
-                                "synonyms": [
-                                    "INTEGER",
-                                    "INT4"
-                                ]
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "0"
-                        },
-                        {
-                            "title": "last_login_at",
-                            "field": "14",
-                            "dataType": {
-                                "type": 26,
-                                "dateTimePrecision": 8,
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        },
-                        {
-                            "title": "avatar_url",
-                            "field": "15",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        },
-                        {
-                            "title": "date_of_birth",
-                            "field": "16",
-                            "dataType": {
-                                "type": 27,
-                                "needsQuotes": true
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        },
-                        {
-                            "title": "preferred_locale",
-                            "field": "17",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "en"
-                        },
-                        {
-                            "title": "currency",
-                            "field": "18",
-                            "dataType": {
-                                "type": 17,
-                                "characterMaximumLength": 65535,
-                                "flags": [
-                                    "BINARY",
-                                    "ASCII",
-                                    "UNICODE"
-                                ],
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "INR"
-                        },
-                        {
-                            "title": "loyalty_points",
-                            "field": "19",
-                            "dataType": {
-                                "type": 4,
-                                "flags": [
-                                    "SIGNED",
-                                    "ZEROFILL"
-                                ],
-                                "numericPrecision": 10,
-                                "parameterFormatType": "OneOrZero",
-                                "synonyms": [
-                                    "INTEGER",
-                                    "INT4"
-                                ]
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "0"
-                        },
-                        {
-                            "title": "marketing_opt_in",
-                            "field": "20",
-                            "dataType": {
-                                "type": 42,
-                                "flags": [
-                                    "SIGNED",
-                                    "ZEROFILL"
-                                ],
-                                "numericPrecision": 10,
-                                "parameterFormatType": "OneOrZero",
-                                "synonyms": [
-                                    "INTEGER",
-                                    "INT4"
-                                ]
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "0"
-                        },
-                        {
-                            "title": "created_at",
-                            "field": "21",
-                            "dataType": {
-                                "type": 26,
-                                "dateTimePrecision": 8,
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "CURRENT_TIMESTAMP"
-                        },
-                        {
-                            "title": "updated_at",
-                            "field": "22",
-                            "dataType": {
-                                "type": 26,
-                                "dateTimePrecision": 8,
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": false,
-                            "autoIncrement": false,
-                            "default": "CURRENT_TIMESTAMP"
-                        },
-                        {
-                            "title": "deleted_at",
-                            "field": "23",
-                            "dataType": {
-                                "type": 26,
-                                "dateTimePrecision": 8,
-                                "needsQuotes": true,
-                                "parameterFormatType": "OneOrZero"
-                            },
-                            "inPK": false,
-                            "nullable": true,
-                            "autoIncrement": false,
-                            "default": null
-                        }
-                    ],
-                    "executionInfo": {
-                        "text": "OK, 10 records retrieved in 2.142ms"
-                    },
-                    "totalRowCount": 10,
-                    "hasMoreRows": false,
-                    "currentPage": 0,
-                    "index": 0,
-                    "sql": "SELECT * FROM users WHERE first_name NOT LIKE 'yusuf%' AND last_name NOT LIKE 'Sharma%' LIMIT 10 OFFSET 0",
-                    "updatable": true,
-                    "fullTableName": "users"
-                }
-            ]
-        },
-        {
-            "state": {
-                "start": 264,
-                "end": 264,
-                "language": "mysql",
-                "result": {
-                    "type": "text",
-                    "text": [
-                        {
-                            "type": 2,
-                            "index": 0,
-                            "resultId": "5470a3c9-2c98-46b3-f7b3-8f8098066b1c",
-                            "content": "OK, 1 row affected in 8.622ms"
-                        }
-                    ]
-                },
-                "currentHeight": 28,
-                "currentSet": 1,
-                "statements": [
-                    {
-                        "delimiter": ";",
-                        "span": {
-                            "start": 0,
-                            "length": 94
-                        },
-                        "contentStart": 0,
-                        "state": 0
-                    }
-                ]
-            },
-            "data": []
-        },
-        {
-            "state": {
-                "start": 265,
-                "end": 265,
-                "language": "mysql",
-                "result": {
-                    "type": "resultIds",
-                    "list": [
-                        "ba48b551-1144-4522-849e-dfe5a6f13494"
-                    ]
-                },
-                "currentHeight": 107,
-                "currentSet": 1,
-                "statements": [
-                    {
-                        "delimiter": ";",
-                        "span": {
-                            "start": 0,
-                            "length": 68
-                        },
-                        "contentStart": 0,
-                        "state": 0
-                    }
-                ]
-            },
-            "data": [
-                {
-                    "tabId": "4b263abd-a7ed-47ab-db5f-8bf753632082",
-                    "resultId": "ba48b551-1144-4522-849e-dfe5a6f13494",
-                    "rows": [
-                        {
-                            "0": "00d90783-e771-400c-ae43-98f7c1131926",
-                            "1": "manish.ahmed95@outlook.com",
+                            "0": "1151e084-8d22-48c1-89f7-8d82eb2c81e1",
+                            "1": "aisha.gupta136@example.com",
                             "2": "$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy",
-                            "3": "Manish",
-                            "4": "Ahmed",
-                            "5": "+919745527412",
+                            "3": "Aisha",
+                            "4": "Gupta",
+                            "5": null,
                             "6": "customer",
                             "7": "active",
                             "8": 1,
@@ -6081,15 +5546,15 @@
                             "11": null,
                             "12": null,
                             "13": 0,
-                            "14": "2026-04-21 05:38:27",
+                            "14": "2026-04-05 09:51:24",
                             "15": null,
-                            "16": "1979-03-04",
+                            "16": "1996-07-06",
                             "17": "en",
-                            "18": "INR",
-                            "19": 340,
+                            "18": "USD",
+                            "19": 80,
                             "20": 0,
-                            "21": "2025-05-30 18:44:51",
-                            "22": "2026-06-10 21:28:57",
+                            "21": "2024-08-17 17:41:34",
+                            "22": "2024-08-17 17:41:34",
                             "23": null
                         }
                     ],
@@ -6512,9 +5977,557 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 1 record retrieved in 1.364ms"
+                        "text": "OK, 10 records retrieved in 1.537ms"
                     },
-                    "totalRowCount": 1,
+                    "totalRowCount": 10,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT * FROM users WHERE first_name NOT LIKE 'yusuf%' AND last_name NOT LIKE 'Sharma%' LIMIT 10 OFFSET 0",
+                    "updatable": true,
+                    "fullTableName": "users"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 264,
+                "end": 264,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "92cea219-7038-4fd6-944f-76d057281989",
+                            "content": "OK, 0 records retrieved in 2.82ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 94
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 265,
+                "end": 265,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "0a2eaa66-75c4-435b-be73-5236f1c60be9"
+                    ]
+                },
+                "currentHeight": 85.390625,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 68
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "8d34326c-4377-4abe-c0fa-20ca61fcc0b9",
+                    "resultId": "0a2eaa66-75c4-435b-be73-5236f1c60be9",
+                    "rows": [],
+                    "columns": [
+                        {
+                            "title": "id",
+                            "field": "0",
+                            "dataType": {
+                                "type": 13,
+                                "characterMaximumLength": 255,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "CHARACTER"
+                                ]
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "uuid()"
+                        },
+                        {
+                            "title": "email",
+                            "field": "1",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "password_hash",
+                            "field": "2",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "first_name",
+                            "field": "3",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "last_name",
+                            "field": "4",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "phone_number",
+                            "field": "5",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "role",
+                            "field": "6",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "customer"
+                        },
+                        {
+                            "title": "status",
+                            "field": "7",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "active"
+                        },
+                        {
+                            "title": "is_email_verified",
+                            "field": "8",
+                            "dataType": {
+                                "type": 1,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 3,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "BOOL",
+                                    "BOOLEAN",
+                                    "INT1"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0"
+                        },
+                        {
+                            "title": "is_phone_verified",
+                            "field": "9",
+                            "dataType": {
+                                "type": 1,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 3,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "BOOL",
+                                    "BOOLEAN",
+                                    "INT1"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0"
+                        },
+                        {
+                            "title": "email_verification_token",
+                            "field": "10",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "password_reset_token",
+                            "field": "11",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "password_reset_expires",
+                            "field": "12",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "two_factor_enabled",
+                            "field": "13",
+                            "dataType": {
+                                "type": 1,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 3,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "BOOL",
+                                    "BOOLEAN",
+                                    "INT1"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0"
+                        },
+                        {
+                            "title": "last_login_at",
+                            "field": "14",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "avatar_url",
+                            "field": "15",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "date_of_birth",
+                            "field": "16",
+                            "dataType": {
+                                "type": 27,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "preferred_locale",
+                            "field": "17",
+                            "dataType": {
+                                "type": 15,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "One",
+                                "synonyms": [
+                                    "CHAR VARYING",
+                                    "CHARACTER VARYING",
+                                    "VARCHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "en"
+                        },
+                        {
+                            "title": "currency",
+                            "field": "18",
+                            "dataType": {
+                                "type": 13,
+                                "characterMaximumLength": 255,
+                                "flags": [
+                                    "BINARY",
+                                    "UNICODE",
+                                    "ASCII"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "CHARACTER"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "INR"
+                        },
+                        {
+                            "title": "loyalty_points",
+                            "field": "19",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0"
+                        },
+                        {
+                            "title": "marketing_opt_in",
+                            "field": "20",
+                            "dataType": {
+                                "type": 1,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 3,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "BOOL",
+                                    "BOOLEAN",
+                                    "INT1"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0"
+                        },
+                        {
+                            "title": "created_at",
+                            "field": "21",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        },
+                        {
+                            "title": "updated_at",
+                            "field": "22",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        },
+                        {
+                            "title": "deleted_at",
+                            "field": "23",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 0 records retrieved in 1.628ms"
+                    },
+                    "totalRowCount": 0,
                     "hasMoreRows": false,
                     "currentPage": 0,
                     "index": 0,
