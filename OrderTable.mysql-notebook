@@ -1,0 +1,288 @@
+{
+    "type": "MySQLNotebook",
+    "version": "1.0",
+    "caption": "Untitled-1",
+    "content": "use ecommerce;\r\nCREATE TABLE orders (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_number    VARCHAR(32) NOT NULL,              -- human-facing, e.g. ORD-2026-000123 (app-generated)\r\n    user_id         CHAR(36)    NOT NULL,\r\n    cart_id         CHAR(36)    DEFAULT NULL,           -- originating cart, for traceability\r\n\r\n    status          ENUM('pending','confirmed','processing','shipped',\r\n                         'delivered','cancelled','refunded','returned')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_status  ENUM('pending','authorized','paid','failed',\r\n                         'refunded','partially_refunded')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_method  ENUM('card','upi','netbanking','wallet','cod') DEFAULT NULL,\r\n    payment_reference VARCHAR(255) DEFAULT NULL,        -- gateway txn id\r\n\r\n    -- Money breakdown (all in `currency`)\r\n    currency        CHAR(3)     NOT NULL DEFAULT 'INR',\r\n    subtotal        DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    shipping_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    total_amount    DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n\r\n    -- Address snapshots (immutable copy at time of order)\r\n    shipping_address JSON        NOT NULL,\r\n    billing_address  JSON        DEFAULT NULL,\r\n\r\n    -- Shipping / lifecycle\r\n    tracking_number VARCHAR(100) DEFAULT NULL,\r\n    carrier         VARCHAR(100) DEFAULT NULL,\r\n    customer_note   VARCHAR(1000) DEFAULT NULL,\r\n\r\n    placed_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    shipped_at      DATETIME    DEFAULT NULL,\r\n    delivered_at    DATETIME    DEFAULT NULL,\r\n    cancelled_at    DATETIME    DEFAULT NULL,\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    updated_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    UNIQUE KEY uq_orders_number (order_number),\r\n    KEY idx_orders_user (user_id),\r\n    KEY idx_orders_status (status),\r\n    KEY idx_orders_payment_status (payment_status),\r\n    KEY idx_orders_placed_at (placed_at),\r\n\r\n    CONSTRAINT chk_totals CHECK (\r\n        subtotal >= 0 AND discount_amount >= 0 AND tax_amount >= 0\r\n        AND shipping_amount >= 0 AND total_amount >= 0\r\n    ),\r\n    CONSTRAINT fk_orders_user\r\n        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT,\r\n    CONSTRAINT fk_orders_cart\r\n        FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE SET NULL\r\n);\r\nCREATE TABLE order_items (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_id        CHAR(36)    NOT NULL,\r\n    product_id      CHAR(36)    DEFAULT NULL,           -- SET NULL if product later deleted\r\n\r\n    -- Product snapshot (preserved even if the catalog changes)\r\n    product_name    VARCHAR(255) NOT NULL,\r\n    product_sku     VARCHAR(100) DEFAULT NULL,\r\n\r\n    quantity        INT UNSIGNED NOT NULL DEFAULT 1,\r\n    unit_price      DECIMAL(12,2) NOT NULL,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    line_total      DECIMAL(12,2) GENERATED ALWAYS AS\r\n                    (unit_price * quantity - discount_amount + tax_amount) STORED,\r\n\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    KEY idx_order_items_order (order_id),\r\n    KEY idx_order_items_product (product_id),\r\n\r\n    CONSTRAINT chk_oi_qty CHECK (quantity > 0),\r\n    CONSTRAINT fk_items_order\r\n        FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,\r\n    CONSTRAINT fk_order_items_product\r\n        FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL\r\n);\r\nshow TABLES;\r\n\r\n\r\n",
+    "options": {
+        "tabSize": 4,
+        "insertSpaces": true,
+        "indentSize": 4,
+        "defaultEOL": "CRLF",
+        "trimAutoWhitespace": true
+    },
+    "viewState": {
+        "cursorState": [
+            {
+                "inSelectionMode": false,
+                "selectionStart": {
+                    "lineNumber": 87,
+                    "column": 1
+                },
+                "position": {
+                    "lineNumber": 87,
+                    "column": 1
+                }
+            }
+        ],
+        "viewState": {
+            "scrollLeft": 0,
+            "firstPosition": {
+                "lineNumber": 78,
+                "column": 1
+            },
+            "firstPositionDeltaTop": -19
+        },
+        "contributionsState": {
+            "editor.contrib.folding": {},
+            "editor.contrib.wordHighlighter": false
+        }
+    },
+    "contexts": [
+        {
+            "state": {
+                "start": 1,
+                "end": 1,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "bc20135f-dfbd-4fb6-b4bc-ec6a86d6a916",
+                            "content": "OK, 0 records retrieved in 0.666ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 14
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 2,
+                "end": 56,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "ee99cd51-fada-4cd3-da5c-ba1d6af2a4eb",
+                            "content": "OK, 0 records retrieved in 147.571ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 2580
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 2580,
+                            "length": -54
+                        },
+                        "contentStart": 2580,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 57,
+                "end": 84,
+                "language": "mysql",
+                "result": {
+                    "type": "text",
+                    "text": [
+                        {
+                            "type": 2,
+                            "index": 0,
+                            "resultId": "8f686bcb-ad20-433f-e735-26d4581d8401",
+                            "content": "OK, 0 records retrieved in 76.859ms"
+                        }
+                    ]
+                },
+                "currentHeight": 28,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 1174
+                        },
+                        "contentStart": 0,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 85,
+                "end": 85,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "51b3bbd4-b559-4336-bfe1-ed32e3a53ab2"
+                    ]
+                },
+                "currentHeight": 209.796875,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 12
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "fb84ec29-969f-4967-d2aa-78377ce80b7b",
+                    "resultId": "51b3bbd4-b559-4336-bfe1-ed32e3a53ab2",
+                    "rows": [
+                        {
+                            "0": "cart_items"
+                        },
+                        {
+                            "0": "carts"
+                        },
+                        {
+                            "0": "order_items"
+                        },
+                        {
+                            "0": "orders"
+                        },
+                        {
+                            "0": "products"
+                        },
+                        {
+                            "0": "users"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Tables_in_ecommerce",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 6 records retrieved in 1.502ms"
+                    },
+                    "totalRowCount": 6,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "show TABLES",
+                    "updatable": false
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 86,
+                "end": 86,
+                "language": "mysql",
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 0,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 87,
+                "end": 87,
+                "language": "mysql",
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        },
+        {
+            "state": {
+                "start": 88,
+                "end": 88,
+                "language": "mysql",
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": []
+        }
+    ]
+}
