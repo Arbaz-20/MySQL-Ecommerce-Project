@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "Untitled-1",
-    "content": "use ecommerce;\r\nCREATE TABLE orders (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_number    VARCHAR(32) NOT NULL,              -- human-facing, e.g. ORD-2026-000123 (app-generated)\r\n    user_id         CHAR(36)    NOT NULL,\r\n    cart_id         CHAR(36)    DEFAULT NULL,           -- originating cart, for traceability\r\n\r\n    status          ENUM('pending','confirmed','processing','shipped',\r\n                         'delivered','cancelled','refunded','returned')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_status  ENUM('pending','authorized','paid','failed',\r\n                         'refunded','partially_refunded')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_method  ENUM('card','upi','netbanking','wallet','cod') DEFAULT NULL,\r\n    payment_reference VARCHAR(255) DEFAULT NULL,        -- gateway txn id\r\n\r\n    -- Money breakdown (all in `currency`)\r\n    currency        CHAR(3)     NOT NULL DEFAULT 'INR',\r\n    subtotal        DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    shipping_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    total_amount    DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n\r\n    -- Address snapshots (immutable copy at time of order)\r\n    shipping_address JSON        NOT NULL,\r\n    billing_address  JSON        DEFAULT NULL,\r\n\r\n    -- Shipping / lifecycle\r\n    tracking_number VARCHAR(100) DEFAULT NULL,\r\n    carrier         VARCHAR(100) DEFAULT NULL,\r\n    customer_note   VARCHAR(1000) DEFAULT NULL,\r\n\r\n    placed_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    shipped_at      DATETIME    DEFAULT NULL,\r\n    delivered_at    DATETIME    DEFAULT NULL,\r\n    cancelled_at    DATETIME    DEFAULT NULL,\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    updated_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    UNIQUE KEY uq_orders_number (order_number),\r\n    KEY idx_orders_user (user_id),\r\n    KEY idx_orders_status (status),\r\n    KEY idx_orders_payment_status (payment_status),\r\n    KEY idx_orders_placed_at (placed_at),\r\n\r\n    CONSTRAINT chk_totals CHECK (\r\n        subtotal >= 0 AND discount_amount >= 0 AND tax_amount >= 0\r\n        AND shipping_amount >= 0 AND total_amount >= 0\r\n    ),\r\n    CONSTRAINT fk_orders_user\r\n        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT,\r\n    CONSTRAINT fk_orders_cart\r\n        FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE SET NULL\r\n);\r\nCREATE TABLE order_items (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_id        CHAR(36)    NOT NULL,\r\n    product_id      CHAR(36)    DEFAULT NULL,           -- SET NULL if product later deleted\r\n\r\n    -- Product snapshot (preserved even if the catalog changes)\r\n    product_name    VARCHAR(255) NOT NULL,\r\n    product_sku     VARCHAR(100) DEFAULT NULL,\r\n\r\n    quantity        INT UNSIGNED NOT NULL DEFAULT 1,\r\n    unit_price      DECIMAL(12,2) NOT NULL,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    line_total      DECIMAL(12,2) GENERATED ALWAYS AS\r\n                    (unit_price * quantity - discount_amount + tax_amount) STORED,\r\n\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    KEY idx_order_items_order (order_id),\r\n    KEY idx_order_items_product (product_id),\r\n\r\n    CONSTRAINT chk_oi_qty CHECK (quantity > 0),\r\n    CONSTRAINT fk_items_order\r\n        FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,\r\n    CONSTRAINT fk_order_items_product\r\n        FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL\r\n);\r\nshow TABLES;\r\n\r\n\r\n",
+    "content": "use ecommerce;\r\nCREATE TABLE orders (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_number    VARCHAR(32) NOT NULL,              -- human-facing, e.g. ORD-2026-000123 (app-generated)\r\n    user_id         CHAR(36)    NOT NULL,\r\n    cart_id         CHAR(36)    DEFAULT NULL,           -- originating cart, for traceability\r\n\r\n    status          ENUM('pending','confirmed','processing','shipped',\r\n                         'delivered','cancelled','refunded','returned')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_status  ENUM('pending','authorized','paid','failed',\r\n                         'refunded','partially_refunded')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_method  ENUM('card','upi','netbanking','wallet','cod') DEFAULT NULL,\r\n    payment_reference VARCHAR(255) DEFAULT NULL,        -- gateway txn id\r\n\r\n    -- Money breakdown (all in `currency`)\r\n    currency        CHAR(3)     NOT NULL DEFAULT 'INR',\r\n    subtotal        DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    shipping_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    total_amount    DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n\r\n    -- Address snapshots (immutable copy at time of order)\r\n    shipping_address JSON        NOT NULL,\r\n    billing_address  JSON        DEFAULT NULL,\r\n\r\n    -- Shipping / lifecycle\r\n    tracking_number VARCHAR(100) DEFAULT NULL,\r\n    carrier         VARCHAR(100) DEFAULT NULL,\r\n    customer_note   VARCHAR(1000) DEFAULT NULL,\r\n\r\n    placed_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    shipped_at      DATETIME    DEFAULT NULL,\r\n    delivered_at    DATETIME    DEFAULT NULL,\r\n    cancelled_at    DATETIME    DEFAULT NULL,\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    updated_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    UNIQUE KEY uq_orders_number (order_number),\r\n    KEY idx_orders_user (user_id),\r\n    KEY idx_orders_status (status),\r\n    KEY idx_orders_payment_status (payment_status),\r\n    KEY idx_orders_placed_at (placed_at),\r\n\r\n    CONSTRAINT chk_totals CHECK (\r\n        subtotal >= 0 AND discount_amount >= 0 AND tax_amount >= 0\r\n        AND shipping_amount >= 0 AND total_amount >= 0\r\n    ),\r\n    CONSTRAINT fk_orders_user\r\n        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT,\r\n    CONSTRAINT fk_orders_cart\r\n        FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE SET NULL\r\n);\r\nCREATE TABLE order_items (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_id        CHAR(36)    NOT NULL,\r\n    product_id      CHAR(36)    DEFAULT NULL,           -- SET NULL if product later deleted\r\n\r\n    -- Product snapshot (preserved even if the catalog changes)\r\n    product_name    VARCHAR(255) NOT NULL,\r\n    product_sku     VARCHAR(100) DEFAULT NULL,\r\n\r\n    quantity        INT UNSIGNED NOT NULL DEFAULT 1,\r\n    unit_price      DECIMAL(12,2) NOT NULL,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    line_total      DECIMAL(12,2) GENERATED ALWAYS AS\r\n                    (unit_price * quantity - discount_amount + tax_amount) STORED,\r\n\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    KEY idx_order_items_order (order_id),\r\n    KEY idx_order_items_product (product_id),\r\n\r\n    CONSTRAINT chk_oi_qty CHECK (quantity > 0),\r\n    CONSTRAINT fk_items_order\r\n        FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,\r\n    CONSTRAINT fk_order_items_product\r\n        FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL\r\n);\r\nshow TABLES;\r\nSELECT * FROM orders limit 10 OFFSET 0;\r\n\r\nSELECT (SELECT COUNT(*) FROM users)    AS users,\r\n       (SELECT COUNT(*) FROM products) AS products,\r\n       (SELECT COUNT(*) FROM carts)    AS carts;\r\n\r\n\r\n",
     "options": {
         "tabSize": 4,
         "insertSpaces": true,
@@ -15,11 +15,11 @@
             {
                 "inSelectionMode": false,
                 "selectionStart": {
-                    "lineNumber": 87,
+                    "lineNumber": 91,
                     "column": 1
                 },
                 "position": {
-                    "lineNumber": 87,
+                    "lineNumber": 91,
                     "column": 1
                 }
             }
@@ -27,10 +27,10 @@
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 78,
+                "lineNumber": 91,
                 "column": 1
             },
-            "firstPositionDeltaTop": -19
+            "firstPositionDeltaTop": 58
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -49,8 +49,8 @@
                         {
                             "type": 2,
                             "index": 0,
-                            "resultId": "bc20135f-dfbd-4fb6-b4bc-ec6a86d6a916",
-                            "content": "OK, 0 records retrieved in 0.666ms"
+                            "resultId": "bd57bffa-76be-4bf8-c134-f80d3759ef30",
+                            "content": "OK, 0 records retrieved in 8.911ms"
                         }
                     ]
                 },
@@ -151,7 +151,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "51b3bbd4-b559-4336-bfe1-ed32e3a53ab2"
+                        "3d841e14-df92-48a9-88a8-e6bc533eb817"
                     ]
                 },
                 "currentHeight": 209.796875,
@@ -170,8 +170,8 @@
             },
             "data": [
                 {
-                    "tabId": "fb84ec29-969f-4967-d2aa-78377ce80b7b",
-                    "resultId": "51b3bbd4-b559-4336-bfe1-ed32e3a53ab2",
+                    "tabId": "359c46f8-ea55-4126-9358-e521832e1dd1",
+                    "resultId": "3d841e14-df92-48a9-88a8-e6bc533eb817",
                     "rows": [
                         {
                             "0": "cart_items"
@@ -227,17 +227,30 @@
         {
             "state": {
                 "start": 86,
-                "end": 86,
+                "end": 87,
                 "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": []
+                },
                 "currentSet": 1,
                 "statements": [
                     {
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 0
+                            "length": 39
                         },
                         "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 39,
+                            "length": 1
+                        },
+                        "contentStart": 41,
                         "state": 3
                     }
                 ]
@@ -246,8 +259,465 @@
         },
         {
             "state": {
-                "start": 87,
-                "end": 87,
+                "start": 88,
+                "end": 90,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "dbcc6a1d-9513-4430-de51-5825e4c7c606"
+                    ]
+                },
+                "currentHeight": 90.796875,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 149
+                        },
+                        "contentStart": 0,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "359c46f8-ea55-4126-9358-e521832e1dd1",
+                    "resultId": "dbcc6a1d-9513-4430-de51-5825e4c7c606",
+                    "rows": [
+                        {
+                            "0": 199,
+                            "1": 500,
+                            "2": 200
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "users",
+                            "field": "0",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "products",
+                            "field": "1",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "carts",
+                            "field": "2",
+                            "dataType": {
+                                "type": 4,
+                                "flags": [
+                                    "SIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 10,
+                                "parameterFormatType": "OneOrZero",
+                                "synonyms": [
+                                    "INTEGER",
+                                    "INT4"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 1 record retrieved in 48.404ms"
+                    },
+                    "totalRowCount": 1,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT (SELECT COUNT(*) FROM users)    AS users,\n       (SELECT COUNT(*) FROM products) AS products,\n       (SELECT COUNT(*) FROM carts)    AS carts;",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 91,
+                "end": 91,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "7ac57410-1a71-4679-e67b-9e19896e5d87"
+                    ]
+                },
+                "currentHeight": 352,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 0
+                        },
+                        "contentStart": 1,
+                        "state": 0
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "359c46f8-ea55-4126-9358-e521832e1dd1",
+                    "resultId": "7ac57410-1a71-4679-e67b-9e19896e5d87",
+                    "rows": [
+                        {
+                            "0": "id",
+                            "1": "char(36)",
+                            "2": "NO",
+                            "3": "PRI",
+                            "4": "uuid()",
+                            "5": "DEFAULT_GENERATED"
+                        },
+                        {
+                            "0": "order_number",
+                            "1": "varchar(32)",
+                            "2": "NO",
+                            "3": "UNI",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "user_id",
+                            "1": "char(36)",
+                            "2": "NO",
+                            "3": "MUL",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "cart_id",
+                            "1": "char(36)",
+                            "2": "YES",
+                            "3": "MUL",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "status",
+                            "1": "enum('pending','confirmed','processing','shipped','delivered','cancelled','refunded','returned')",
+                            "2": "NO",
+                            "3": "MUL",
+                            "4": "pending",
+                            "5": ""
+                        },
+                        {
+                            "0": "payment_status",
+                            "1": "enum('pending','authorized','paid','failed','refunded','partially_refunded')",
+                            "2": "NO",
+                            "3": "MUL",
+                            "4": "pending",
+                            "5": ""
+                        },
+                        {
+                            "0": "payment_method",
+                            "1": "enum('card','upi','netbanking','wallet','cod')",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "payment_reference",
+                            "1": "varchar(255)",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "currency",
+                            "1": "char(3)",
+                            "2": "NO",
+                            "3": "",
+                            "4": "INR",
+                            "5": ""
+                        },
+                        {
+                            "0": "subtotal",
+                            "1": "decimal(12,2)",
+                            "2": "NO",
+                            "3": "",
+                            "4": "0.00",
+                            "5": ""
+                        },
+                        {
+                            "0": "discount_amount",
+                            "1": "decimal(12,2)",
+                            "2": "NO",
+                            "3": "",
+                            "4": "0.00",
+                            "5": ""
+                        },
+                        {
+                            "0": "tax_amount",
+                            "1": "decimal(12,2)",
+                            "2": "NO",
+                            "3": "",
+                            "4": "0.00",
+                            "5": ""
+                        },
+                        {
+                            "0": "shipping_amount",
+                            "1": "decimal(12,2)",
+                            "2": "NO",
+                            "3": "",
+                            "4": "0.00",
+                            "5": ""
+                        },
+                        {
+                            "0": "total_amount",
+                            "1": "decimal(12,2)",
+                            "2": "NO",
+                            "3": "",
+                            "4": "0.00",
+                            "5": ""
+                        },
+                        {
+                            "0": "shipping_address",
+                            "1": "json",
+                            "2": "NO",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "billing_address",
+                            "1": "json",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "tracking_number",
+                            "1": "varchar(100)",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "carrier",
+                            "1": "varchar(100)",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "customer_note",
+                            "1": "varchar(1000)",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "placed_at",
+                            "1": "datetime",
+                            "2": "NO",
+                            "3": "MUL",
+                            "4": "CURRENT_TIMESTAMP",
+                            "5": "DEFAULT_GENERATED"
+                        },
+                        {
+                            "0": "shipped_at",
+                            "1": "datetime",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "delivered_at",
+                            "1": "datetime",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "cancelled_at",
+                            "1": "datetime",
+                            "2": "YES",
+                            "3": "",
+                            "4": null,
+                            "5": ""
+                        },
+                        {
+                            "0": "created_at",
+                            "1": "datetime",
+                            "2": "NO",
+                            "3": "",
+                            "4": "CURRENT_TIMESTAMP",
+                            "5": "DEFAULT_GENERATED"
+                        },
+                        {
+                            "0": "updated_at",
+                            "1": "datetime",
+                            "2": "NO",
+                            "3": "",
+                            "4": "CURRENT_TIMESTAMP",
+                            "5": "DEFAULT_GENERATED on update CURRENT_TIMESTAMP"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "Field",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "Type",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "Null",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "Key",
+                            "field": "3",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "Default",
+                            "field": "4",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "Extra",
+                            "field": "5",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 25 records retrieved in 25.201ms"
+                    },
+                    "totalRowCount": 25,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "DESC orders",
+                    "updatable": false
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 92,
+                "end": 92,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [
@@ -266,8 +736,8 @@
         },
         {
             "state": {
-                "start": 88,
-                "end": 88,
+                "start": 93,
+                "end": 93,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [
