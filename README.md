@@ -288,55 +288,179 @@ The many-to-many bridge between `users` and `products` for "save for later".
 
 ## Entity relationships
 
-```
-                    +----------+
-                    |  users   |
-                    +----------+
-                    /  | | |  \
-                   /   | | |   \
-     (vendor_id)  /    | | |    \  (user_id)
-                 /     | | |     \
-        +----------+   | | |   +----------+
-        | products |   | | |   |  carts   |
-        +----------+   | | |   +----------+
-           |  |        | | |        |
-           |  |        | | |        | (cart_id)
-           |  |        | | |        v
-           |  |        | | |   +-------------+
-           |  |        | | |   | cart_items  |
-           |  |        | | |   +-------------+
-           |  |        | | |
-           |  |        | | +-- wishlists -----+
-           |  |        | |     (user_id,      |
-           |  |        | |      product_id)   |
-           |  |        | |                    |
-           |  |        | +-- orders -----+    |
-           |  |        |    (user_id,    |    |
-           |  |        |     cart_id)    |    |
-           |  |        |                 v    |
-           |  |        |          +-------------+
-           |  |        |          | order_items |
-           |  |        |          +-------------+
-           |  |        |                ^
-           |  |        |                |
-           |  +--------+----------------+
-           |          (product_id everywhere above)
-           |
-           v
-     +-----------+        +-------------+
-     | inventory | <----- | warehouses  |
-     +-----------+        +-------------+
+The diagram below is laid out in landscape orientation — users on the left,
+the order/cart flow through the middle, and the warehouse/inventory cluster
+on the right.
+
+```mermaid
+%%{init: {'theme':'neutral', 'er':{'layoutDirection':'LR'}}}%%
+erDiagram
+    USERS      ||--o{ CARTS       : "places"
+    USERS      ||--o{ ORDERS      : "places"
+    USERS      ||--o{ WISHLISTS   : "saves"
+    USERS      ||--o{ PRODUCTS    : "vendors"
+
+    CARTS      ||--o{ CART_ITEMS  : "contains"
+    CARTS      |o--o| ORDERS      : "converts to"
+
+    ORDERS     ||--o{ ORDER_ITEMS : "contains"
+
+    PRODUCTS   ||--o{ CART_ITEMS  : "added as"
+    PRODUCTS   ||--o{ ORDER_ITEMS : "sold as"
+    PRODUCTS   ||--o{ WISHLISTS   : "wished as"
+    PRODUCTS   ||--o{ INVENTORY   : "stocked as"
+
+    WAREHOUSES ||--o{ INVENTORY   : "stores"
+
+    USERS {
+        CHAR36   id PK
+        VARCHAR  email UK
+        VARCHAR  phone_number UK
+        ENUM     role
+        ENUM     status
+        DATETIME deleted_at
+    }
+    PRODUCTS {
+        CHAR36   id PK
+        VARCHAR  sku UK
+        VARCHAR  slug UK
+        DECIMAL  price
+        INT      stock_quantity
+        ENUM     status
+        CHAR36   vendor_id FK
+    }
+    CARTS {
+        CHAR36   id PK
+        CHAR36   user_id FK
+        ENUM     status
+        CHAR36   converted_order_id FK
+        TINYINT  is_active_cart "generated"
+    }
+    CART_ITEMS {
+        CHAR36   id PK
+        CHAR36   cart_id FK
+        CHAR36   product_id FK
+        INT      quantity
+        DECIMAL  unit_price
+        DECIMAL  line_total "generated"
+    }
+    ORDERS {
+        CHAR36   id PK
+        VARCHAR  order_number UK
+        CHAR36   user_id FK
+        CHAR36   cart_id FK
+        ENUM     status
+        ENUM     payment_status
+        DECIMAL  total_amount
+        JSON     shipping_address
+    }
+    ORDER_ITEMS {
+        CHAR36   id PK
+        CHAR36   order_id FK
+        CHAR36   product_id FK
+        INT      quantity
+        DECIMAL  unit_price
+        DECIMAL  line_total "generated"
+    }
+    WISHLISTS {
+        CHAR36   id PK
+        CHAR36   user_id FK
+        CHAR36   product_id FK
+        ENUM     priority
+        TINYINT  notify_on_restock
+        TINYINT  notify_on_price_drop
+    }
+    WAREHOUSES {
+        CHAR36   id PK
+        VARCHAR  name
+        VARCHAR  code UK
+    }
+    INVENTORY {
+        CHAR36   id PK
+        CHAR36   warehouse_id FK
+        CHAR36   product_id FK
+        INT      quantity_on_hand
+        INT      quantity_reserved
+        INT      quantity_available "generated"
+        INT      reorder_point
+    }
 ```
 
-Key relationships:
+> **Crow's-foot notation reminder:** `||--o{` means "one-to-many", `|o--o|`
+> means "zero-or-one to zero-or-one" (the cart ↔ order link is optional on
+> both sides until checkout creates the order).
 
-- `users 1—N products` (a vendor owns many products)
-- `users 1—N carts`, with at most **one active** per user
-- `carts 1—N cart_items`, `cart_items N—1 products`
-- `users 1—N orders`, `orders 1—N order_items`
-- `orders 1—1 carts` via `carts.converted_order_id` (set at checkout)
-- `users M—N products` via `wishlists`
-- `warehouses M—N products` via `inventory`, carrying stock numbers
+### ASCII fallback (landscape)
+
+If the Mermaid block above doesn't render in your viewer, here is the same
+diagram in plain ASCII — flowing left → right across the page. The arrow
+points from the **child** (foreign-key side) to the **parent** (primary-key
+side).
+
+```
+   +---------+      +---------+      +--------------+
+   |         | 1:N  |         | 1:N  |              |  N:1 (product_id)
+   |         |----->|  CARTS  |----->|  CART_ITEMS  |---------+
+   |         |      |         |      |              |         |
+   |         |      +----+----+      +--------------+         |
+   |         |           | 0..1                               |
+   |         |           | (cart <--> order link)             |
+   |         |           v                                    |
+   |         |      +---------+      +--------------+         |   +----------+      +-----------+      +-------------+
+   |         | 1:N  |         | 1:N  |              |  N:1    |   |          | 1:N  |           | 1:N  |             |
+   |  USERS  |----->| ORDERS  |----->| ORDER_ITEMS  |---------+-->| PRODUCTS |<-----| INVENTORY |<-----| WAREHOUSES  |
+   |         |      |         |      |              |             |          |      |           |      |             |
+   |         |      +---------+      +--------------+             +----------+      +-----------+      +-------------+
+   |         |                                                       ^    ^
+   |         | 1:N  +-----------+                                    |    |
+   |         |----->| WISHLISTS |------------- N:1 (product_id) -----+    |
+   |         |      |           |                                         |
+   |         |      +-----------+                                         |
+   |         |                                                            |
+   |         |--------------- 1:N (vendor_id) ----------------------------+
+   +---------+
+```
+
+**How to read it (left → right):**
+
+- **Column 1 — `USERS`.** The single source of identity. Every arrow leaving
+  this box is `users.id` being referenced as a foreign key somewhere else.
+- **Column 2 — what a user creates.** Three parallel rows: their `CARTS`
+  (top), their `ORDERS` (middle), their `WISHLISTS` (bottom).
+- **Column 3 — line tables.** `CART_ITEMS` lives under a cart;
+  `ORDER_ITEMS` lives under an order. Both are bridges that also point
+  rightward to a product.
+- **Column 4 — `PRODUCTS`.** The catalog. Five arrows converge here:
+  vendor (from users), cart_items, order_items, wishlists, and inventory.
+- **Columns 5 & 6 — stock side.** `INVENTORY` is the bridge that carries
+  per-warehouse stock numbers; `WAREHOUSES` sits at the far right.
+- **The vertical link between `CARTS` and `ORDERS`** is the 0..1 ↔ 0..1
+  cart-to-order conversion (`carts.converted_order_id` /
+  `orders.cart_id`) — created at checkout.
+
+### Cardinalities at a glance
+
+| Parent → Child | Type | FK column | On delete |
+|----------------|------|-----------|-----------|
+| `users` → `products` | 1 : N | `products.vendor_id` | `SET NULL` |
+| `users` → `carts` | 1 : N (active = 1) | `carts.user_id` | `CASCADE` |
+| `users` → `orders` | 1 : N | `orders.user_id` | `RESTRICT` |
+| `users` → `wishlists` | 1 : N | `wishlists.user_id` | `CASCADE` |
+| `carts` → `cart_items` | 1 : N | `cart_items.cart_id` | `CASCADE` |
+| `carts` ↔ `orders` | 0..1 : 0..1 | `carts.converted_order_id` / `orders.cart_id` | `SET NULL` |
+| `orders` → `order_items` | 1 : N | `order_items.order_id` | `CASCADE` |
+| `products` → `cart_items` | 1 : N | `cart_items.product_id` | `CASCADE` |
+| `products` → `order_items` | 1 : N | `order_items.product_id` | `SET NULL` |
+| `products` → `wishlists` | 1 : N | `wishlists.product_id` | `CASCADE` |
+| `products` → `inventory` | 1 : N | `inventory.product_id` | `CASCADE` |
+| `warehouses` → `inventory` | 1 : N | `inventory.warehouse_id` | `CASCADE` |
+
+Implied many-to-many relationships (via the bridge tables above):
+
+- `users  M : N  products`  via `wishlists`
+- `users  M : N  products`  via `cart_items` (carts in between)
+- `users  M : N  products`  via `order_items` (orders in between)
+- `products  M : N  warehouses`  via `inventory` (carries stock)
 
 ---
 
