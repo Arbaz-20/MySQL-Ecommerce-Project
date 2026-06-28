@@ -2,7 +2,7 @@
     "type": "MySQLNotebook",
     "version": "1.0",
     "caption": "Untitled-1",
-    "content": "use ecommerce;\r\nCREATE TABLE orders (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_number    VARCHAR(32) NOT NULL,              -- human-facing, e.g. ORD-2026-000123 (app-generated)\r\n    user_id         CHAR(36)    NOT NULL,\r\n    cart_id         CHAR(36)    DEFAULT NULL,           -- originating cart, for traceability\r\n\r\n    status          ENUM('pending','confirmed','processing','shipped',\r\n                         'delivered','cancelled','refunded','returned')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_status  ENUM('pending','authorized','paid','failed',\r\n                         'refunded','partially_refunded')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_method  ENUM('card','upi','netbanking','wallet','cod') DEFAULT NULL,\r\n    payment_reference VARCHAR(255) DEFAULT NULL,        -- gateway txn id\r\n\r\n    -- Money breakdown (all in `currency`)\r\n    currency        CHAR(3)     NOT NULL DEFAULT 'INR',\r\n    subtotal        DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    shipping_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    total_amount    DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n\r\n    -- Address snapshots (immutable copy at time of order)\r\n    shipping_address JSON        NOT NULL,\r\n    billing_address  JSON        DEFAULT NULL,\r\n\r\n    -- Shipping / lifecycle\r\n    tracking_number VARCHAR(100) DEFAULT NULL,\r\n    carrier         VARCHAR(100) DEFAULT NULL,\r\n    customer_note   VARCHAR(1000) DEFAULT NULL,\r\n\r\n    placed_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    shipped_at      DATETIME    DEFAULT NULL,\r\n    delivered_at    DATETIME    DEFAULT NULL,\r\n    cancelled_at    DATETIME    DEFAULT NULL,\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    updated_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    UNIQUE KEY uq_orders_number (order_number),\r\n    KEY idx_orders_user (user_id),\r\n    KEY idx_orders_status (status),\r\n    KEY idx_orders_payment_status (payment_status),\r\n    KEY idx_orders_placed_at (placed_at),\r\n\r\n    CONSTRAINT chk_totals CHECK (\r\n        subtotal >= 0 AND discount_amount >= 0 AND tax_amount >= 0\r\n        AND shipping_amount >= 0 AND total_amount >= 0\r\n    ),\r\n    CONSTRAINT fk_orders_user\r\n        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT,\r\n    CONSTRAINT fk_orders_cart\r\n        FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE SET NULL\r\n);\r\nCREATE TABLE order_items (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_id        CHAR(36)    NOT NULL,\r\n    product_id      CHAR(36)    DEFAULT NULL,           -- SET NULL if product later deleted\r\n\r\n    -- Product snapshot (preserved even if the catalog changes)\r\n    product_name    VARCHAR(255) NOT NULL,\r\n    product_sku     VARCHAR(100) DEFAULT NULL,\r\n\r\n    quantity        INT UNSIGNED NOT NULL DEFAULT 1,\r\n    unit_price      DECIMAL(12,2) NOT NULL,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    line_total      DECIMAL(12,2) GENERATED ALWAYS AS\r\n                    (unit_price * quantity - discount_amount + tax_amount) STORED,\r\n\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    KEY idx_order_items_order (order_id),\r\n    KEY idx_order_items_product (product_id),\r\n\r\n    CONSTRAINT chk_oi_qty CHECK (quantity > 0),\r\n    CONSTRAINT fk_items_order\r\n        FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,\r\n    CONSTRAINT fk_order_items_product\r\n        FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL\r\n);\r\nshow TABLES;\r\nSELECT * FROM orders limit 10 OFFSET 0;\r\n\r\nSELECT (SELECT COUNT(*) FROM users)    AS users,\r\n       (SELECT COUNT(*) FROM products) AS products,\r\n       (SELECT COUNT(*) FROM carts)    AS carts;\r\n\r\n\r\n",
+    "content": "use ecommerce;\r\nCREATE TABLE orders (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_number    VARCHAR(32) NOT NULL,              -- human-facing, e.g. ORD-2026-000123 (app-generated)\r\n    user_id         CHAR(36)    NOT NULL,\r\n    cart_id         CHAR(36)    DEFAULT NULL,           -- originating cart, for traceability\r\n\r\n    status          ENUM('pending','confirmed','processing','shipped',\r\n                         'delivered','cancelled','refunded','returned')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_status  ENUM('pending','authorized','paid','failed',\r\n                         'refunded','partially_refunded')\r\n                    NOT NULL DEFAULT 'pending',\r\n    payment_method  ENUM('card','upi','netbanking','wallet','cod') DEFAULT NULL,\r\n    payment_reference VARCHAR(255) DEFAULT NULL,        -- gateway txn id\r\n\r\n    -- Money breakdown (all in `currency`)\r\n    currency        CHAR(3)     NOT NULL DEFAULT 'INR',\r\n    subtotal        DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    shipping_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    total_amount    DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n\r\n    -- Address snapshots (immutable copy at time of order)\r\n    shipping_address JSON        NOT NULL,\r\n    billing_address  JSON        DEFAULT NULL,\r\n\r\n    -- Shipping / lifecycle\r\n    tracking_number VARCHAR(100) DEFAULT NULL,\r\n    carrier         VARCHAR(100) DEFAULT NULL,\r\n    customer_note   VARCHAR(1000) DEFAULT NULL,\r\n\r\n    placed_at       DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    shipped_at      DATETIME    DEFAULT NULL,\r\n    delivered_at    DATETIME    DEFAULT NULL,\r\n    cancelled_at    DATETIME    DEFAULT NULL,\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n    updated_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    UNIQUE KEY uq_orders_number (order_number),\r\n    KEY idx_orders_user (user_id),\r\n    KEY idx_orders_status (status),\r\n    KEY idx_orders_payment_status (payment_status),\r\n    KEY idx_orders_placed_at (placed_at),\r\n\r\n    CONSTRAINT chk_totals CHECK (\r\n        subtotal >= 0 AND discount_amount >= 0 AND tax_amount >= 0\r\n        AND shipping_amount >= 0 AND total_amount >= 0\r\n    ),\r\n    CONSTRAINT fk_orders_user\r\n        FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE RESTRICT,\r\n    CONSTRAINT fk_orders_cart\r\n        FOREIGN KEY (cart_id) REFERENCES carts (id) ON DELETE SET NULL\r\n);\r\nCREATE TABLE order_items (\r\n    id              CHAR(36)    NOT NULL DEFAULT (UUID()),\r\n    order_id        CHAR(36)    NOT NULL,\r\n    product_id      CHAR(36)    DEFAULT NULL,           -- SET NULL if product later deleted\r\n\r\n    -- Product snapshot (preserved even if the catalog changes)\r\n    product_name    VARCHAR(255) NOT NULL,\r\n    product_sku     VARCHAR(100) DEFAULT NULL,\r\n\r\n    quantity        INT UNSIGNED NOT NULL DEFAULT 1,\r\n    unit_price      DECIMAL(12,2) NOT NULL,\r\n    discount_amount DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    tax_amount      DECIMAL(12,2) NOT NULL DEFAULT 0.00,\r\n    line_total      DECIMAL(12,2) GENERATED ALWAYS AS\r\n                    (unit_price * quantity - discount_amount + tax_amount) STORED,\r\n\r\n    created_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,\r\n\r\n    PRIMARY KEY (id),\r\n    KEY idx_order_items_order (order_id),\r\n    KEY idx_order_items_product (product_id),\r\n\r\n    CONSTRAINT chk_oi_qty CHECK (quantity > 0),\r\n    CONSTRAINT fk_items_order\r\n        FOREIGN KEY (order_id) REFERENCES orders (id) ON DELETE CASCADE,\r\n    CONSTRAINT fk_order_items_product\r\n        FOREIGN KEY (product_id) REFERENCES products (id) ON DELETE SET NULL\r\n);\r\nshow TABLES;\r\nSELECT * FROM orders limit 10 OFFSET 0;\r\n\r\nSELECT (SELECT COUNT(*) FROM users)    AS users,\r\n       (SELECT COUNT(*) FROM products) AS products,\r\n       (SELECT COUNT(*) FROM carts)    AS carts;\r\n\r\nSELECT * FROM orders limit 10 OFFSET 0;\r\nSELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders ORDER BY updated_at limit 20 offset 0;  \r\nSELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders ORDER BY order_number limit 20 offset 0;  \r\nSELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders WHERE status='confirmed' ORDER BY order_number limit 20 offset 0;  \r\nSELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders WHERE payment_status='paid' ORDER BY order_number limit 20 offset 0;  \r\nSELECT id, order_number, status, payment_status, total_amount,\r\n       SUM(total_amount) OVER () AS amount_received\r\nFROM orders\r\nWHERE payment_status LIKE 'paid%'\r\nORDER BY order_number\r\nLIMIT 20 OFFSET 0;\r\n",
     "options": {
         "tabSize": 4,
         "insertSpaces": true,
@@ -13,24 +13,24 @@
     "viewState": {
         "cursorState": [
             {
-                "inSelectionMode": false,
+                "inSelectionMode": true,
                 "selectionStart": {
-                    "lineNumber": 91,
-                    "column": 1
+                    "lineNumber": 98,
+                    "column": 8
                 },
                 "position": {
-                    "lineNumber": 91,
-                    "column": 1
+                    "lineNumber": 98,
+                    "column": 52
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 91,
+                "lineNumber": 96,
                 "column": 1
             },
-            "firstPositionDeltaTop": 58
+            "firstPositionDeltaTop": 2
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -49,8 +49,8 @@
                         {
                             "type": 2,
                             "index": 0,
-                            "resultId": "bd57bffa-76be-4bf8-c134-f80d3759ef30",
-                            "content": "OK, 0 records retrieved in 8.911ms"
+                            "resultId": "308bfe0a-5931-4726-e313-a9499179e7e3",
+                            "content": "OK, 0 records retrieved in 26.022ms"
                         }
                     ]
                 },
@@ -151,7 +151,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "3d841e14-df92-48a9-88a8-e6bc533eb817"
+                        "656a53e7-37fc-491d-9835-6ce0b413bf1e"
                     ]
                 },
                 "currentHeight": 209.796875,
@@ -170,8 +170,8 @@
             },
             "data": [
                 {
-                    "tabId": "359c46f8-ea55-4126-9358-e521832e1dd1",
-                    "resultId": "3d841e14-df92-48a9-88a8-e6bc533eb817",
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "656a53e7-37fc-491d-9835-6ce0b413bf1e",
                     "rows": [
                         {
                             "0": "cart_items"
@@ -229,10 +229,6 @@
                 "start": 86,
                 "end": 87,
                 "language": "mysql",
-                "result": {
-                    "type": "resultIds",
-                    "list": []
-                },
                 "currentSet": 1,
                 "statements": [
                     {
@@ -265,7 +261,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "dbcc6a1d-9513-4430-de51-5825e4c7c606"
+                        "c19222a4-5c61-42bb-898e-3a392d96ea9c"
                     ]
                 },
                 "currentHeight": 90.796875,
@@ -284,8 +280,8 @@
             },
             "data": [
                 {
-                    "tabId": "359c46f8-ea55-4126-9358-e521832e1dd1",
-                    "resultId": "dbcc6a1d-9513-4430-de51-5825e4c7c606",
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "c19222a4-5c61-42bb-898e-3a392d96ea9c",
                     "rows": [
                         {
                             "0": 199,
@@ -376,7 +372,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "7ac57410-1a71-4679-e67b-9e19896e5d87"
+                        "32afd1e7-7c72-4f22-9568-0d208d4c33d2"
                     ]
                 },
                 "currentHeight": 352,
@@ -395,8 +391,8 @@
             },
             "data": [
                 {
-                    "tabId": "359c46f8-ea55-4126-9358-e521832e1dd1",
-                    "resultId": "7ac57410-1a71-4679-e67b-9e19896e5d87",
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "32afd1e7-7c72-4f22-9568-0d208d4c33d2",
                     "rows": [
                         {
                             "0": "id",
@@ -719,25 +715,2528 @@
                 "start": 92,
                 "end": 92,
                 "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "61ec4087-918b-4e8a-da98-5b8047ccc841"
+                    ]
+                },
+                "currentHeight": 36,
                 "currentSet": 1,
                 "statements": [
                     {
                         "delimiter": ";",
                         "span": {
                             "start": 0,
-                            "length": 0
+                            "length": 39
                         },
                         "contentStart": 0,
                         "state": 0
                     }
                 ]
             },
-            "data": []
+            "data": [
+                {
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "61ec4087-918b-4e8a-da98-5b8047ccc841",
+                    "rows": [
+                        {
+                            "0": "026b9229-9c21-4b45-aaa5-14b355215f02",
+                            "1": "ORD-2026-000010",
+                            "2": "b6863dfb-5240-4534-ac5c-aa5a8041bd9f",
+                            "3": "abc1b8df-aa7d-481b-b020-3af96d79312b",
+                            "4": "confirmed",
+                            "5": "authorized",
+                            "6": "wallet",
+                            "7": "TXNB55DBD1FA7514697",
+                            "8": "USD",
+                            "9": "1415.08",
+                            "10": "0.00",
+                            "11": "113.21",
+                            "12": "12.00",
+                            "13": "1540.29",
+                            "14": "{\"city\": \"Mumbai\", \"name\": \"Rohan Reddy\", \"line1\": \"123, Brigade Road\", \"phone\": \"+919000043683\", \"state\": \"Maharashtra\", \"country\": \"IN\", \"postal_code\": \"400001\"}",
+                            "15": "{\"city\": \"Mumbai\", \"name\": \"Rohan Reddy\", \"line1\": \"123, Brigade Road\", \"phone\": \"+919000043683\", \"state\": \"Maharashtra\", \"country\": \"IN\", \"postal_code\": \"400001\"}",
+                            "16": null,
+                            "17": null,
+                            "18": "Please leave at the front desk.",
+                            "19": "2026-04-06 02:26:00",
+                            "20": null,
+                            "21": null,
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "09ab5487-8b6f-468e-9d56-c566e6b8dc45",
+                            "1": "ORD-2026-000094",
+                            "2": "e2f504b6-a48b-43de-86be-bb15811335b1",
+                            "3": "80c1600a-d7d4-487e-a460-d804b53647dd",
+                            "4": "confirmed",
+                            "5": "paid",
+                            "6": "card",
+                            "7": "TXN5F3F45BE11B947F4",
+                            "8": "USD",
+                            "9": "65.02",
+                            "10": "0.00",
+                            "11": "5.20",
+                            "12": "8.00",
+                            "13": "78.22",
+                            "14": "{\"city\": \"Pune\", \"name\": \"Neha Gupta\", \"line1\": \"402, Linking Road\", \"phone\": \"+919000021782\", \"state\": \"Maharashtra\", \"country\": \"IN\", \"postal_code\": \"411001\"}",
+                            "15": null,
+                            "16": null,
+                            "17": null,
+                            "18": null,
+                            "19": "2025-09-19 17:44:00",
+                            "20": null,
+                            "21": null,
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "13604314-5958-4a5f-b135-e07ca79c6ba9",
+                            "1": "ORD-2026-000063",
+                            "2": "83276ca4-b6c8-4ca3-a751-944c1db53b74",
+                            "3": "f7d5ef84-8b7b-402e-8253-f1b5f721b2ec",
+                            "4": "confirmed",
+                            "5": "authorized",
+                            "6": "upi",
+                            "7": "TXN723EFA0EFC6A4DA4",
+                            "8": "USD",
+                            "9": "741.55",
+                            "10": "0.00",
+                            "11": "59.32",
+                            "12": "8.00",
+                            "13": "808.87",
+                            "14": "{\"city\": \"Chennai\", \"name\": \"Sara Mehta\", \"line1\": \"371, Linking Road\", \"phone\": \"+919000068570\", \"state\": \"Tamil Nadu\", \"country\": \"IN\", \"postal_code\": \"600001\"}",
+                            "15": null,
+                            "16": null,
+                            "17": null,
+                            "18": "Gift wrap if possible.",
+                            "19": "2025-09-11 12:46:00",
+                            "20": null,
+                            "21": null,
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "13eb1d4c-02f8-465a-8309-67f312cc9b70",
+                            "1": "ORD-2026-000089",
+                            "2": "ef172ead-b9cc-403c-b262-284a8837d4f2",
+                            "3": "bb8f704f-0411-4114-947e-6c762d36bbac",
+                            "4": "processing",
+                            "5": "paid",
+                            "6": "wallet",
+                            "7": "TXN09E85E8CE56347D3",
+                            "8": "USD",
+                            "9": "1384.90",
+                            "10": "0.00",
+                            "11": "110.79",
+                            "12": "12.00",
+                            "13": "1507.69",
+                            "14": "{\"city\": \"Kolkata\", \"name\": \"Ananya Das\", \"line1\": \"197, Brigade Road\", \"phone\": \"+919000019539\", \"state\": \"West Bengal\", \"country\": \"IN\", \"postal_code\": \"700001\"}",
+                            "15": "{\"city\": \"Kolkata\", \"name\": \"Ananya Das\", \"line1\": \"197, Brigade Road\", \"phone\": \"+919000019539\", \"state\": \"West Bengal\", \"country\": \"IN\", \"postal_code\": \"700001\"}",
+                            "16": null,
+                            "17": null,
+                            "18": null,
+                            "19": "2026-02-06 20:43:00",
+                            "20": null,
+                            "21": null,
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "174d603e-4832-4dd6-bed8-222534c11e70",
+                            "1": "ORD-2026-000037",
+                            "2": "fa810e56-3e81-4aee-a6a2-80be2417744e",
+                            "3": "e3efbc2e-b60b-479f-a130-9a426523cc96",
+                            "4": "cancelled",
+                            "5": "failed",
+                            "6": "netbanking",
+                            "7": null,
+                            "8": "USD",
+                            "9": "736.95",
+                            "10": "0.00",
+                            "11": "58.96",
+                            "12": "5.00",
+                            "13": "800.91",
+                            "14": "{\"city\": \"Lucknow\", \"name\": \"Aarav Das\", \"line1\": \"40, Brigade Road\", \"phone\": \"+919000077462\", \"state\": \"Uttar Pradesh\", \"country\": \"IN\", \"postal_code\": \"226001\"}",
+                            "15": null,
+                            "16": null,
+                            "17": null,
+                            "18": null,
+                            "19": "2026-05-08 09:21:00",
+                            "20": null,
+                            "21": null,
+                            "22": "2026-05-08 09:21:00",
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "19719581-ae30-487c-88c9-f065d95301b0",
+                            "1": "ORD-2026-000095",
+                            "2": "50aa7b6f-b3b0-402f-abc3-0b36ede349fa",
+                            "3": "af9152be-a67d-4ce9-8c49-0cf331bc4eed",
+                            "4": "delivered",
+                            "5": "paid",
+                            "6": "card",
+                            "7": "TXNC949066A72F3439A",
+                            "8": "USD",
+                            "9": "435.98",
+                            "10": "43.60",
+                            "11": "31.39",
+                            "12": "12.00",
+                            "13": "435.77",
+                            "14": "{\"city\": \"Ahmedabad\", \"name\": \"Ananya Mehta\", \"line1\": \"394, Park Street\", \"phone\": \"+919000055969\", \"state\": \"Gujarat\", \"country\": \"IN\", \"postal_code\": \"380001\"}",
+                            "15": "{\"city\": \"Ahmedabad\", \"name\": \"Ananya Mehta\", \"line1\": \"394, Park Street\", \"phone\": \"+919000055969\", \"state\": \"Gujarat\", \"country\": \"IN\", \"postal_code\": \"380001\"}",
+                            "16": "TRK6517164347",
+                            "17": "DTDC",
+                            "18": null,
+                            "19": "2026-02-06 12:59:00",
+                            "20": "2026-02-09 12:59:00",
+                            "21": "2026-02-11 12:59:00",
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "19a130ef-8b6a-47d3-92a0-2f037bb082b1",
+                            "1": "ORD-2026-000080",
+                            "2": "3c1bbd2a-df8f-456f-b975-8206c4b67105",
+                            "3": "0f6c4a96-673e-4b6c-b909-2a6628260617",
+                            "4": "delivered",
+                            "5": "paid",
+                            "6": "cod",
+                            "7": "TXN83892FA0FB9E4996",
+                            "8": "USD",
+                            "9": "100.42",
+                            "10": "0.00",
+                            "11": "8.03",
+                            "12": "0.00",
+                            "13": "108.45",
+                            "14": "{\"city\": \"Hyderabad\", \"name\": \"Ananya Nair\", \"line1\": \"143, Sector 12\", \"phone\": \"+919000013778\", \"state\": \"Telangana\", \"country\": \"IN\", \"postal_code\": \"500001\"}",
+                            "15": "{\"city\": \"Hyderabad\", \"name\": \"Ananya Nair\", \"line1\": \"143, Sector 12\", \"phone\": \"+919000013778\", \"state\": \"Telangana\", \"country\": \"IN\", \"postal_code\": \"500001\"}",
+                            "16": "TRK3441958387",
+                            "17": "Delhivery",
+                            "18": null,
+                            "19": "2026-03-28 09:34:00",
+                            "20": "2026-03-31 09:34:00",
+                            "21": "2026-04-03 09:34:00",
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "19b6a8d2-715f-45bd-b56d-22349b7d86f1",
+                            "1": "ORD-2026-000056",
+                            "2": "45f75a23-990a-4aad-bedf-141704d57d6a",
+                            "3": "ac2f67d0-2820-4dbf-984d-2d860adae399",
+                            "4": "processing",
+                            "5": "paid",
+                            "6": "wallet",
+                            "7": "TXND6C82DB9167F42ED",
+                            "8": "USD",
+                            "9": "392.13",
+                            "10": "0.00",
+                            "11": "31.37",
+                            "12": "8.00",
+                            "13": "431.50",
+                            "14": "{\"city\": \"Jaipur\", \"name\": \"Isha Reddy\", \"line1\": \"249, Brigade Road\", \"phone\": \"+919000054836\", \"state\": \"Rajasthan\", \"country\": \"IN\", \"postal_code\": \"302001\"}",
+                            "15": "{\"city\": \"Jaipur\", \"name\": \"Isha Reddy\", \"line1\": \"249, Brigade Road\", \"phone\": \"+919000054836\", \"state\": \"Rajasthan\", \"country\": \"IN\", \"postal_code\": \"302001\"}",
+                            "16": null,
+                            "17": null,
+                            "18": null,
+                            "19": "2025-08-28 09:40:00",
+                            "20": null,
+                            "21": null,
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "1d677389-73b8-4943-b5f0-9ee5d53392b1",
+                            "1": "ORD-2026-000034",
+                            "2": "a0dd0af9-d506-4281-bfed-a7750043038e",
+                            "3": "a70f1823-c075-47bf-9d5f-7f2abb247be4",
+                            "4": "processing",
+                            "5": "paid",
+                            "6": "netbanking",
+                            "7": "TXN6A219A5505354A74",
+                            "8": "USD",
+                            "9": "1795.69",
+                            "10": "0.00",
+                            "11": "143.66",
+                            "12": "0.00",
+                            "13": "1939.35",
+                            "14": "{\"city\": \"Ahmedabad\", \"name\": \"Ananya Khan\", \"line1\": \"192, MG Road\", \"phone\": \"+919000093100\", \"state\": \"Gujarat\", \"country\": \"IN\", \"postal_code\": \"380001\"}",
+                            "15": null,
+                            "16": null,
+                            "17": null,
+                            "18": null,
+                            "19": "2025-12-18 14:27:00",
+                            "20": null,
+                            "21": null,
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2208566b-4465-46b0-9f9c-6f41276d3724",
+                            "1": "ORD-2026-000071",
+                            "2": "3578b292-e101-4657-83a8-010e3d7d38c3",
+                            "3": "cfb2fcde-a000-4c29-a991-5ffd2b0718bb",
+                            "4": "confirmed",
+                            "5": "paid",
+                            "6": "upi",
+                            "7": "TXNF53A839BF5644189",
+                            "8": "USD",
+                            "9": "100.19",
+                            "10": "0.00",
+                            "11": "8.02",
+                            "12": "8.00",
+                            "13": "116.21",
+                            "14": "{\"city\": \"Mumbai\", \"name\": \"Aarav Iyer\", \"line1\": \"492, Brigade Road\", \"phone\": \"+919000088655\", \"state\": \"Maharashtra\", \"country\": \"IN\", \"postal_code\": \"400001\"}",
+                            "15": "{\"city\": \"Mumbai\", \"name\": \"Aarav Iyer\", \"line1\": \"492, Brigade Road\", \"phone\": \"+919000088655\", \"state\": \"Maharashtra\", \"country\": \"IN\", \"postal_code\": \"400001\"}",
+                            "16": null,
+                            "17": null,
+                            "18": null,
+                            "19": "2026-03-18 10:03:00",
+                            "20": null,
+                            "21": null,
+                            "22": null,
+                            "23": "2026-06-21 20:51:43",
+                            "24": "2026-06-21 20:51:43"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "uuid()"
+                        },
+                        {
+                            "title": "order_number",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "user_id",
+                            "field": "2",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "cart_id",
+                            "field": "3",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "status",
+                            "field": "4",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_status",
+                            "field": "5",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_method",
+                            "field": "6",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "payment_reference",
+                            "field": "7",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "currency",
+                            "field": "8",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "INR"
+                        },
+                        {
+                            "title": "subtotal",
+                            "field": "9",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "discount_amount",
+                            "field": "10",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "tax_amount",
+                            "field": "11",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "shipping_amount",
+                            "field": "12",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "total_amount",
+                            "field": "13",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "shipping_address",
+                            "field": "14",
+                            "dataType": {
+                                "type": 40,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "billing_address",
+                            "field": "15",
+                            "dataType": {
+                                "type": 40,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "tracking_number",
+                            "field": "16",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "carrier",
+                            "field": "17",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "customer_note",
+                            "field": "18",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "placed_at",
+                            "field": "19",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        },
+                        {
+                            "title": "shipped_at",
+                            "field": "20",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "delivered_at",
+                            "field": "21",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "cancelled_at",
+                            "field": "22",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "created_at",
+                            "field": "23",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        },
+                        {
+                            "title": "updated_at",
+                            "field": "24",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 10 records retrieved in 108.534ms"
+                    },
+                    "totalRowCount": 10,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT * FROM orders limit 10 OFFSET 0",
+                    "updatable": true,
+                    "fullTableName": "orders"
+                }
+            ]
         },
         {
             "state": {
                 "start": 93,
                 "end": 93,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "3555d61b-f9c9-45ea-df2d-d615e6631f36"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 143
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 143,
+                            "length": 2
+                        },
+                        "contentStart": 142,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "3555d61b-f9c9-45ea-df2d-d615e6631f36",
+                    "rows": [
+                        {
+                            "0": "026b9229-9c21-4b45-aaa5-14b355215f02",
+                            "1": "ORD-2026-000010",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "wallet",
+                            "5": "1415.08",
+                            "6": "1540.29",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "09ab5487-8b6f-468e-9d56-c566e6b8dc45",
+                            "1": "ORD-2026-000094",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "65.02",
+                            "6": "78.22",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "13604314-5958-4a5f-b135-e07ca79c6ba9",
+                            "1": "ORD-2026-000063",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "upi",
+                            "5": "741.55",
+                            "6": "808.87",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "13eb1d4c-02f8-465a-8309-67f312cc9b70",
+                            "1": "ORD-2026-000089",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "1384.90",
+                            "6": "1507.69",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "174d603e-4832-4dd6-bed8-222534c11e70",
+                            "1": "ORD-2026-000037",
+                            "2": "cancelled",
+                            "3": "failed",
+                            "4": "netbanking",
+                            "5": "736.95",
+                            "6": "800.91",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "19719581-ae30-487c-88c9-f065d95301b0",
+                            "1": "ORD-2026-000095",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "435.98",
+                            "6": "435.77",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "19a130ef-8b6a-47d3-92a0-2f037bb082b1",
+                            "1": "ORD-2026-000080",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "100.42",
+                            "6": "108.45",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "19b6a8d2-715f-45bd-b56d-22349b7d86f1",
+                            "1": "ORD-2026-000056",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "392.13",
+                            "6": "431.50",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "1d677389-73b8-4943-b5f0-9ee5d53392b1",
+                            "1": "ORD-2026-000034",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "netbanking",
+                            "5": "1795.69",
+                            "6": "1939.35",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2208566b-4465-46b0-9f9c-6f41276d3724",
+                            "1": "ORD-2026-000071",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "upi",
+                            "5": "100.19",
+                            "6": "116.21",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2480c4a1-09eb-4799-820f-d68075f4f86e",
+                            "1": "ORD-2026-000076",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "70.25",
+                            "6": "87.87",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2719eb80-f039-40f1-8ecd-46cebcb77bac",
+                            "1": "ORD-2026-000023",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "403.13",
+                            "6": "399.85",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "271e975f-3fa4-4589-b8cc-3a7090f257ff",
+                            "1": "ORD-2026-000098",
+                            "2": "returned",
+                            "3": "partially_refunded",
+                            "4": "card",
+                            "5": "226.89",
+                            "6": "245.04",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2b4ea882-91e7-4c60-b74a-4a2fb4cdedba",
+                            "1": "ORD-2026-000045",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "20.12",
+                            "6": "33.73",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2dbd12a9-3f61-40ce-8aa9-da0ba0ff0bfd",
+                            "1": "ORD-2026-000099",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "154.96",
+                            "6": "158.62",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "33e0fe30-ecf1-47d1-98f8-65e4277fb230",
+                            "1": "ORD-2026-000001",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "73.54",
+                            "6": "83.49",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "36846c68-a8bc-4a19-99a0-67fcda89f7d5",
+                            "1": "ORD-2026-000068",
+                            "2": "returned",
+                            "3": "partially_refunded",
+                            "4": "upi",
+                            "5": "68.29",
+                            "6": "73.75",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "3762dfa4-8477-47b0-9ed3-a55aefb1698f",
+                            "1": "ORD-2026-000024",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "982.40",
+                            "6": "1060.99",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "392557a0-62bd-4af7-bc14-306687638947",
+                            "1": "ORD-2026-000048",
+                            "2": "cancelled",
+                            "3": "refunded",
+                            "4": "wallet",
+                            "5": "113.03",
+                            "6": "130.07",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "393c3d5a-f39f-4f50-9cb0-eab1f981095a",
+                            "1": "ORD-2026-000086",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "100.73",
+                            "6": "113.79",
+                            "7": "2026-06-21 20:51:43"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "uuid()"
+                        },
+                        {
+                            "title": "order_number",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "status",
+                            "field": "2",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_status",
+                            "field": "3",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_method",
+                            "field": "4",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "subtotal",
+                            "field": "5",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "total_amount",
+                            "field": "6",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "updated_at",
+                            "field": "7",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 20 records retrieved in 4.214ms"
+                    },
+                    "totalRowCount": 20,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders ORDER BY updated_at limit 20 offset 0",
+                    "updatable": true,
+                    "fullTableName": "orders"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 94,
+                "end": 94,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "bcc707ef-a0d9-498f-c295-070ff9749238"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 145
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 145,
+                            "length": 2
+                        },
+                        "contentStart": 144,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "bcc707ef-a0d9-498f-c295-070ff9749238",
+                    "rows": [
+                        {
+                            "0": "33e0fe30-ecf1-47d1-98f8-65e4277fb230",
+                            "1": "ORD-2026-000001",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "73.54",
+                            "6": "83.49",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c9f91f08-acac-4da2-8d3e-62106e6598dd",
+                            "1": "ORD-2026-000002",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "wallet",
+                            "5": "269.07",
+                            "6": "302.60",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c6cc0d44-d4df-4751-8e77-64299c07a2c1",
+                            "1": "ORD-2026-000003",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "netbanking",
+                            "5": "358.75",
+                            "6": "399.45",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "f646bab6-4dd3-4e0a-8fb2-417b16bd3c6e",
+                            "1": "ORD-2026-000004",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "1724.06",
+                            "6": "1861.98",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c5a595c3-1d69-4e5d-9326-b91057f119ff",
+                            "1": "ORD-2026-000005",
+                            "2": "returned",
+                            "3": "partially_refunded",
+                            "4": "card",
+                            "5": "209.12",
+                            "6": "215.27",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "5aef9184-f9c6-4617-a1df-bb3a00a2f549",
+                            "1": "ORD-2026-000006",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "2088.70",
+                            "6": "2260.80",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "9e757419-7008-423c-a60e-0294c5880764",
+                            "1": "ORD-2026-000007",
+                            "2": "pending",
+                            "3": "pending",
+                            "4": "upi",
+                            "5": "478.06",
+                            "6": "516.30",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c7fdcc6f-8e61-4573-8cb5-fe6227e3d420",
+                            "1": "ORD-2026-000008",
+                            "2": "cancelled",
+                            "3": "failed",
+                            "4": "wallet",
+                            "5": "963.85",
+                            "6": "1048.96",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "e392dd30-e00a-4a1f-9fd6-72f229be8240",
+                            "1": "ORD-2026-000009",
+                            "2": "pending",
+                            "3": "pending",
+                            "4": "wallet",
+                            "5": "103.01",
+                            "6": "105.13",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "026b9229-9c21-4b45-aaa5-14b355215f02",
+                            "1": "ORD-2026-000010",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "wallet",
+                            "5": "1415.08",
+                            "6": "1540.29",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "fe59a2b1-f38e-4c4f-a30d-c293040b4463",
+                            "1": "ORD-2026-000011",
+                            "2": "pending",
+                            "3": "pending",
+                            "4": "cod",
+                            "5": "366.60",
+                            "6": "364.34",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c7f255da-982a-44b5-a332-4a0183852433",
+                            "1": "ORD-2026-000012",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "netbanking",
+                            "5": "1125.27",
+                            "6": "1215.29",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "3fc3d3e1-8ada-41e6-89ef-8c8e2ca3bbd5",
+                            "1": "ORD-2026-000013",
+                            "2": "refunded",
+                            "3": "refunded",
+                            "4": "card",
+                            "5": "201.46",
+                            "6": "217.58",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "f5fc297d-393c-46a3-860e-1be66cc1d360",
+                            "1": "ORD-2026-000014",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "442.23",
+                            "6": "482.61",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "96710185-c032-4424-ae4b-3550fda58761",
+                            "1": "ORD-2026-000015",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "274.88",
+                            "6": "308.87",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "49dcda63-5246-408f-a74d-8745c2a82ed6",
+                            "1": "ORD-2026-000016",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "112.71",
+                            "6": "117.56",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "caa9cb99-2fb1-47a9-8931-b7c089238693",
+                            "1": "ORD-2026-000017",
+                            "2": "refunded",
+                            "3": "refunded",
+                            "4": "cod",
+                            "5": "24.51",
+                            "6": "38.47",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "f05f25d2-a610-4f66-9536-d7cc9cb939ef",
+                            "1": "ORD-2026-000018",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "upi",
+                            "5": "833.95",
+                            "6": "822.59",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "d3684f3e-60b9-4fe3-a76a-771c6c3c8062",
+                            "1": "ORD-2026-000019",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "upi",
+                            "5": "411.32",
+                            "6": "452.23",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "d48e1977-5f79-478e-8092-2be71ccf6d83",
+                            "1": "ORD-2026-000020",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "1108.16",
+                            "6": "1204.81",
+                            "7": "2026-06-21 20:51:43"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "uuid()"
+                        },
+                        {
+                            "title": "order_number",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "status",
+                            "field": "2",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_status",
+                            "field": "3",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_method",
+                            "field": "4",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "subtotal",
+                            "field": "5",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "total_amount",
+                            "field": "6",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "updated_at",
+                            "field": "7",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 20 records retrieved in 2.043ms"
+                    },
+                    "totalRowCount": 20,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders ORDER BY order_number limit 20 offset 0",
+                    "updatable": true,
+                    "fullTableName": "orders"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 95,
+                "end": 95,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "d51565c3-3c31-41ca-f437-abf3fe8df524"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 170
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 170,
+                            "length": 2
+                        },
+                        "contentStart": 169,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "d51565c3-3c31-41ca-f437-abf3fe8df524",
+                    "rows": [
+                        {
+                            "0": "c9f91f08-acac-4da2-8d3e-62106e6598dd",
+                            "1": "ORD-2026-000002",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "wallet",
+                            "5": "269.07",
+                            "6": "302.60",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "5aef9184-f9c6-4617-a1df-bb3a00a2f549",
+                            "1": "ORD-2026-000006",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "2088.70",
+                            "6": "2260.80",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "026b9229-9c21-4b45-aaa5-14b355215f02",
+                            "1": "ORD-2026-000010",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "wallet",
+                            "5": "1415.08",
+                            "6": "1540.29",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "9a6beaee-706b-42e9-9477-d89f19d719f1",
+                            "1": "ORD-2026-000027",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "card",
+                            "5": "1171.22",
+                            "6": "1276.92",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "56c6f092-57ad-4983-b259-755499104c49",
+                            "1": "ORD-2026-000030",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "cod",
+                            "5": "58.12",
+                            "6": "67.77",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c3de9388-ce98-43dd-8369-e9392cb89770",
+                            "1": "ORD-2026-000040",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "wallet",
+                            "5": "70.11",
+                            "6": "87.72",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "13604314-5958-4a5f-b135-e07ca79c6ba9",
+                            "1": "ORD-2026-000063",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "upi",
+                            "5": "741.55",
+                            "6": "808.87",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "a25f0170-b98e-4026-8cea-25b8ac70a7df",
+                            "1": "ORD-2026-000069",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "upi",
+                            "5": "154.60",
+                            "6": "174.97",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2208566b-4465-46b0-9f9c-6f41276d3724",
+                            "1": "ORD-2026-000071",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "upi",
+                            "5": "100.19",
+                            "6": "116.21",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "8356ad83-431d-4c38-9d0f-4ec668064b4a",
+                            "1": "ORD-2026-000074",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "892.29",
+                            "6": "971.67",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "09ab5487-8b6f-468e-9d56-c566e6b8dc45",
+                            "1": "ORD-2026-000094",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "65.02",
+                            "6": "78.22",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "51ba87d8-4083-4fcc-b947-2faf401965ab",
+                            "1": "ORD-2026-000100",
+                            "2": "confirmed",
+                            "3": "authorized",
+                            "4": "cod",
+                            "5": "1085.73",
+                            "6": "1055.33",
+                            "7": "2026-06-21 20:51:43"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "uuid()"
+                        },
+                        {
+                            "title": "order_number",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "status",
+                            "field": "2",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_status",
+                            "field": "3",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_method",
+                            "field": "4",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "subtotal",
+                            "field": "5",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "total_amount",
+                            "field": "6",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "updated_at",
+                            "field": "7",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 12 records retrieved in 1.074ms"
+                    },
+                    "totalRowCount": 12,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders WHERE status='confirmed' ORDER BY order_number limit 20 offset 0",
+                    "updatable": true,
+                    "fullTableName": "orders"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 96,
+                "end": 96,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "6f3e8884-d52c-4ce4-9cbc-91f4e739507f"
+                    ]
+                },
+                "currentHeight": 36,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 173
+                        },
+                        "contentStart": 0,
+                        "state": 0
+                    },
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 173,
+                            "length": 2
+                        },
+                        "contentStart": 172,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "6f3e8884-d52c-4ce4-9cbc-91f4e739507f",
+                    "rows": [
+                        {
+                            "0": "33e0fe30-ecf1-47d1-98f8-65e4277fb230",
+                            "1": "ORD-2026-000001",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "73.54",
+                            "6": "83.49",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c6cc0d44-d4df-4751-8e77-64299c07a2c1",
+                            "1": "ORD-2026-000003",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "netbanking",
+                            "5": "358.75",
+                            "6": "399.45",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "f646bab6-4dd3-4e0a-8fb2-417b16bd3c6e",
+                            "1": "ORD-2026-000004",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "1724.06",
+                            "6": "1861.98",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "5aef9184-f9c6-4617-a1df-bb3a00a2f549",
+                            "1": "ORD-2026-000006",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "2088.70",
+                            "6": "2260.80",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "c7f255da-982a-44b5-a332-4a0183852433",
+                            "1": "ORD-2026-000012",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "netbanking",
+                            "5": "1125.27",
+                            "6": "1215.29",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "f5fc297d-393c-46a3-860e-1be66cc1d360",
+                            "1": "ORD-2026-000014",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "442.23",
+                            "6": "482.61",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "96710185-c032-4424-ae4b-3550fda58761",
+                            "1": "ORD-2026-000015",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "274.88",
+                            "6": "308.87",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "49dcda63-5246-408f-a74d-8745c2a82ed6",
+                            "1": "ORD-2026-000016",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "112.71",
+                            "6": "117.56",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "f05f25d2-a610-4f66-9536-d7cc9cb939ef",
+                            "1": "ORD-2026-000018",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "upi",
+                            "5": "833.95",
+                            "6": "822.59",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "d3684f3e-60b9-4fe3-a76a-771c6c3c8062",
+                            "1": "ORD-2026-000019",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "upi",
+                            "5": "411.32",
+                            "6": "452.23",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "d48e1977-5f79-478e-8092-2be71ccf6d83",
+                            "1": "ORD-2026-000020",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "1108.16",
+                            "6": "1204.81",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "7cc2b527-7a88-4a91-a409-7c7de5be70d4",
+                            "1": "ORD-2026-000021",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "307.83",
+                            "6": "299.21",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "f10a4286-7ef7-49a6-bc42-d1a1e1ef53d3",
+                            "1": "ORD-2026-000022",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "netbanking",
+                            "5": "41.53",
+                            "6": "52.85",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "2719eb80-f039-40f1-8ecd-46cebcb77bac",
+                            "1": "ORD-2026-000023",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "wallet",
+                            "5": "403.13",
+                            "6": "399.85",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "3762dfa4-8477-47b0-9ed3-a55aefb1698f",
+                            "1": "ORD-2026-000024",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "982.40",
+                            "6": "1060.99",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "53cf8fd7-883a-454c-b390-911b17ce2003",
+                            "1": "ORD-2026-000025",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "275.21",
+                            "6": "272.51",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "684020f9-5cfe-4f56-911f-975d82b36452",
+                            "1": "ORD-2026-000026",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "upi",
+                            "5": "145.58",
+                            "6": "165.23",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "842adc93-71e8-4011-92b6-25d8f0bd6a61",
+                            "1": "ORD-2026-000028",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "cod",
+                            "5": "534.14",
+                            "6": "531.19",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "6f2c6726-7d00-43be-9251-51717660873a",
+                            "1": "ORD-2026-000029",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "1205.76",
+                            "6": "1314.22",
+                            "7": "2026-06-21 20:51:43"
+                        },
+                        {
+                            "0": "fcf9c18b-e04c-4bff-ad7e-3c67e8cfcbbd",
+                            "1": "ORD-2026-000031",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "card",
+                            "5": "989.97",
+                            "6": "1074.17",
+                            "7": "2026-06-21 20:51:43"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": true,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "uuid()"
+                        },
+                        {
+                            "title": "order_number",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "status",
+                            "field": "2",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_status",
+                            "field": "3",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "pending"
+                        },
+                        {
+                            "title": "payment_method",
+                            "field": "4",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": true,
+                            "autoIncrement": false,
+                            "default": null
+                        },
+                        {
+                            "title": "subtotal",
+                            "field": "5",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "total_amount",
+                            "field": "6",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "0.00"
+                        },
+                        {
+                            "title": "updated_at",
+                            "field": "7",
+                            "dataType": {
+                                "type": 26,
+                                "dateTimePrecision": 8,
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false,
+                            "default": "CURRENT_TIMESTAMP"
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 20 records retrieved in 1.885ms"
+                    },
+                    "totalRowCount": 20,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT id,order_number,status,payment_status,payment_method,subtotal,total_amount,updated_at FROM orders WHERE payment_status='paid' ORDER BY order_number limit 20 offset 0",
+                    "updatable": true,
+                    "fullTableName": "orders"
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 97,
+                "end": 102,
+                "language": "mysql",
+                "result": {
+                    "type": "resultIds",
+                    "list": [
+                        "cbb8b53e-333e-4f98-9701-309ebe437150"
+                    ]
+                },
+                "currentHeight": 352,
+                "currentSet": 1,
+                "statements": [
+                    {
+                        "delimiter": ";",
+                        "span": {
+                            "start": 0,
+                            "length": 201
+                        },
+                        "contentStart": 0,
+                        "state": 3
+                    }
+                ]
+            },
+            "data": [
+                {
+                    "tabId": "13a0d405-3605-4533-a217-c4f270296c37",
+                    "resultId": "cbb8b53e-333e-4f98-9701-309ebe437150",
+                    "rows": [
+                        {
+                            "0": "33e0fe30-ecf1-47d1-98f8-65e4277fb230",
+                            "1": "ORD-2026-000001",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "83.49",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "c6cc0d44-d4df-4751-8e77-64299c07a2c1",
+                            "1": "ORD-2026-000003",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "399.45",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "f646bab6-4dd3-4e0a-8fb2-417b16bd3c6e",
+                            "1": "ORD-2026-000004",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "1861.98",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "5aef9184-f9c6-4617-a1df-bb3a00a2f549",
+                            "1": "ORD-2026-000006",
+                            "2": "confirmed",
+                            "3": "paid",
+                            "4": "2260.80",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "c7f255da-982a-44b5-a332-4a0183852433",
+                            "1": "ORD-2026-000012",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "1215.29",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "f5fc297d-393c-46a3-860e-1be66cc1d360",
+                            "1": "ORD-2026-000014",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "482.61",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "96710185-c032-4424-ae4b-3550fda58761",
+                            "1": "ORD-2026-000015",
+                            "2": "processing",
+                            "3": "paid",
+                            "4": "308.87",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "49dcda63-5246-408f-a74d-8745c2a82ed6",
+                            "1": "ORD-2026-000016",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "117.56",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "f05f25d2-a610-4f66-9536-d7cc9cb939ef",
+                            "1": "ORD-2026-000018",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "822.59",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "d3684f3e-60b9-4fe3-a76a-771c6c3c8062",
+                            "1": "ORD-2026-000019",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "452.23",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "d48e1977-5f79-478e-8092-2be71ccf6d83",
+                            "1": "ORD-2026-000020",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "1204.81",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "7cc2b527-7a88-4a91-a409-7c7de5be70d4",
+                            "1": "ORD-2026-000021",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "299.21",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "f10a4286-7ef7-49a6-bc42-d1a1e1ef53d3",
+                            "1": "ORD-2026-000022",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "52.85",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "2719eb80-f039-40f1-8ecd-46cebcb77bac",
+                            "1": "ORD-2026-000023",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "399.85",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "3762dfa4-8477-47b0-9ed3-a55aefb1698f",
+                            "1": "ORD-2026-000024",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "1060.99",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "53cf8fd7-883a-454c-b390-911b17ce2003",
+                            "1": "ORD-2026-000025",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "272.51",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "684020f9-5cfe-4f56-911f-975d82b36452",
+                            "1": "ORD-2026-000026",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "165.23",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "842adc93-71e8-4011-92b6-25d8f0bd6a61",
+                            "1": "ORD-2026-000028",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "531.19",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "6f2c6726-7d00-43be-9251-51717660873a",
+                            "1": "ORD-2026-000029",
+                            "2": "shipped",
+                            "3": "paid",
+                            "4": "1314.22",
+                            "5": "47995.99"
+                        },
+                        {
+                            "0": "fcf9c18b-e04c-4bff-ad7e-3c67e8cfcbbd",
+                            "1": "ORD-2026-000031",
+                            "2": "delivered",
+                            "3": "paid",
+                            "4": "1074.17",
+                            "5": "47995.99"
+                        }
+                    ],
+                    "columns": [
+                        {
+                            "title": "id",
+                            "field": "0",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "order_number",
+                            "field": "1",
+                            "dataType": {
+                                "type": 17,
+                                "characterMaximumLength": 65535,
+                                "flags": [
+                                    "BINARY",
+                                    "ASCII",
+                                    "UNICODE"
+                                ],
+                                "needsQuotes": true,
+                                "parameterFormatType": "OneOrZero"
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "status",
+                            "field": "2",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "payment_status",
+                            "field": "3",
+                            "dataType": {
+                                "type": 43,
+                                "needsQuotes": true
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "total_amount",
+                            "field": "4",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        },
+                        {
+                            "title": "amount_received",
+                            "field": "5",
+                            "dataType": {
+                                "type": 10,
+                                "flags": [
+                                    "UNSIGNED",
+                                    "ZEROFILL"
+                                ],
+                                "numericPrecision": 65,
+                                "numericScale": 30,
+                                "parameterFormatType": "TwoOrOneOrZero",
+                                "synonyms": [
+                                    "FIXED",
+                                    "NUMERIC",
+                                    "DEC"
+                                ]
+                            },
+                            "inPK": false,
+                            "nullable": false,
+                            "autoIncrement": false
+                        }
+                    ],
+                    "executionInfo": {
+                        "text": "OK, 20 records retrieved in 4.371ms"
+                    },
+                    "totalRowCount": 20,
+                    "hasMoreRows": false,
+                    "currentPage": 0,
+                    "index": 0,
+                    "sql": "SELECT id, order_number, status, payment_status, total_amount,\n       SUM(total_amount) OVER () AS amount_received\nFROM orders\nWHERE payment_status LIKE 'paid%'\nORDER BY order_number\nLIMIT 20 OFFSET 0;",
+                    "updatable": false,
+                    "fullTableName": ""
+                }
+            ]
+        },
+        {
+            "state": {
+                "start": 103,
+                "end": 103,
                 "language": "mysql",
                 "currentSet": 1,
                 "statements": [

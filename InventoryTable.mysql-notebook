@@ -13,24 +13,24 @@
     "viewState": {
         "cursorState": [
             {
-                "inSelectionMode": false,
+                "inSelectionMode": true,
                 "selectionStart": {
-                    "lineNumber": 1158,
+                    "lineNumber": 193,
                     "column": 1
                 },
                 "position": {
-                    "lineNumber": 1158,
-                    "column": 1
+                    "lineNumber": 243,
+                    "column": 164
                 }
             }
         ],
         "viewState": {
             "scrollLeft": 0,
             "firstPosition": {
-                "lineNumber": 1157,
+                "lineNumber": 279,
                 "column": 1
             },
-            "firstPositionDeltaTop": 328
+            "firstPositionDeltaTop": -16
         },
         "contributionsState": {
             "editor.contrib.folding": {},
@@ -80,8 +80,8 @@
                         {
                             "type": 2,
                             "index": 0,
-                            "resultId": "df20eb91-67cf-4738-898b-5bc605bd10a0",
-                            "content": "OK, 0 records retrieved in 1.166ms"
+                            "resultId": "f1fa963e-5d03-4be5-c3e6-824a71507e10",
+                            "content": "OK, 0 records retrieved in 5.265ms"
                         }
                     ]
                 },
@@ -141,7 +141,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "6b549dbd-1f06-4e21-a31f-31fe0e6a40f2"
+                        "f1da5f73-8cdd-4e81-8c26-786291c0c196"
                     ]
                 },
                 "currentHeight": 36,
@@ -160,8 +160,8 @@
             },
             "data": [
                 {
-                    "tabId": "6bdcc8c3-7204-4aad-de6a-adb7e285e01e",
-                    "resultId": "6b549dbd-1f06-4e21-a31f-31fe0e6a40f2",
+                    "tabId": "032eeb7a-2e63-465f-ad84-2234f2522049",
+                    "resultId": "f1da5f73-8cdd-4e81-8c26-786291c0c196",
                     "rows": [
                         {
                             "0": "id",
@@ -364,7 +364,7 @@
                         }
                     ],
                     "executionInfo": {
-                        "text": "OK, 12 records retrieved in 2.631ms"
+                        "text": "OK, 12 records retrieved in 71.631ms"
                     },
                     "totalRowCount": 12,
                     "hasMoreRows": false,
@@ -517,7 +517,7 @@
                         }
                     ]
                 },
-                "currentHeight": 352,
+                "currentHeight": 28,
                 "currentSet": 1,
                 "statements": [
                     {
@@ -748,7 +748,7 @@
                 "result": {
                     "type": "resultIds",
                     "list": [
-                        "e9cb1305-b241-4c79-c29f-f8f4225af53a"
+                        "d82ea3db-11dd-453f-97f4-7786035691ff"
                     ]
                 },
                 "currentHeight": 90.796875,
@@ -767,8 +767,8 @@
             },
             "data": [
                 {
-                    "tabId": "6bdcc8c3-7204-4aad-de6a-adb7e285e01e",
-                    "resultId": "e9cb1305-b241-4c79-c29f-f8f4225af53a",
+                    "tabId": "032eeb7a-2e63-465f-ad84-2234f2522049",
+                    "resultId": "d82ea3db-11dd-453f-97f4-7786035691ff",
                     "rows": [
                         {
                             "0": 1075
